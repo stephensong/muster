@@ -13,8 +13,12 @@ title: Latest Changes
 - Fixed a problem with an incorrect Licence link.
 - Fixed a bug in a "Muster on the server" example.
 - Fixed a bug in a `location()` node - using browser history caused a reload every time the location
-  got changed. 
-- Fixed a bug with invalidating `getItems` requests over the proxy.
+  got changed.
+- Fixed a bug with invalidating `getItems` requests over the proxy. 
+  
+### 💅 Polish
+
+- Added a unit test that checks if a createBehavior node can be used to create custom evaluate/getChild behavior.
 
 ## 6.5.0 (2018-12-06)
 

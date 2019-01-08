@@ -7,7 +7,6 @@ import {
   isCallArgumentArray,
   isCallOperation,
 } from '../../operations/call';
-import { isEvaluateOperation } from '../../operations/evaluate';
 import { isGetChildOperation } from '../../operations/get-child';
 import { getItemsOperation, isGetItemsOperation } from '../../operations/get-items';
 import { isIterateOperation } from '../../operations/iterate';
@@ -47,11 +46,11 @@ import { ExternalStatefulNodeDefinition, stateful } from './stateful';
  */
 export interface PlaceholderNode
   extends GraphNode<
-      'placeholder',
-      PlaceholderNodeProperties,
-      PlaceholderNodeState,
-      PlaceholderNodeData
-    > {}
+    'placeholder',
+    PlaceholderNodeProperties,
+    PlaceholderNodeState,
+    PlaceholderNodeData
+  > {}
 
 /**
  * A definition of the [[placeholder]] node.
@@ -59,11 +58,11 @@ export interface PlaceholderNode
  */
 export interface PlaceholderNodeDefinition
   extends NodeDefinition<
-      'placeholder',
-      PlaceholderNodeProperties,
-      PlaceholderNodeState,
-      PlaceholderNodeData
-    > {}
+    'placeholder',
+    PlaceholderNodeProperties,
+    PlaceholderNodeState,
+    PlaceholderNodeData
+  > {}
 
 export interface PlaceholderNodeProperties {
   path: Array<OperationPathPart>;
@@ -72,6 +71,9 @@ export interface PlaceholderNodeProperties {
 
 export interface PlaceholderNodeState {
   results: {
+    [operationHash: string]: NodeDefinition | undefined;
+  };
+  statefulNodes: {
     [operationHash: string]: NodeDefinition | undefined;
   };
 }
@@ -99,6 +101,7 @@ export const PlaceholderNodeType: StatefulNodeType<
 >('placeholder', {
   state: {
     results: types.objectOf(graphTypes.nodeDefinition),
+    statefulNodes: types.objectOf(graphTypes.nodeDefinition),
   },
   shape: {
     path: types.arrayOf(
@@ -114,6 +117,7 @@ export const PlaceholderNodeType: StatefulNodeType<
   getInitialState(): PlaceholderNodeState {
     return {
       results: {},
+      statefulNodes: {},
     };
   },
   operations: {
@@ -132,204 +136,15 @@ export const PlaceholderNodeType: StatefulNodeType<
         node: PlaceholderNode,
         operation: GraphOperation,
       ): void {
-        const { path, queryBuilder } = node.definition.properties;
-        const resultNode = stateful<NodeDefinition | GraphNode>(pending());
-        const getOperationDependencies = (): Array<NodeDependency> | undefined => {
-          if (isCallOperation(operation)) {
-            const { args } = operation.properties;
-            if (!args) return [];
-            if (Array.isArray(args)) {
-              return args.map((arg) => ({
-                target: arg,
-                once: true,
-              }));
-            }
-            return Object.keys(args).map((name) => ({
-              target: args[name],
-              once: true,
-            }));
-          }
-          if (isGetItemsOperation(operation)) {
-            return operation.properties.transforms.map((transform) => {
-              const transformNode = isNodeDefinition(transform)
-                ? withScopeFrom(node, transform)
-                : transform;
-              const resolveTransform = hoistDependencies(transformNode);
-              return { target: resolveTransform.definition };
-            });
-          }
-          return undefined;
-        };
-        let lastResolvedDependenciesIds: Array<string> | undefined;
-        const dependenciesResolved = (resolvedDependencies: Array<GraphNode>): NodeDefinition => {
-          if (lastResolvedDependenciesIds) {
-            const dependenciesHaveChanged = lastResolvedDependenciesIds.some(
-              (id, index) => id !== resolvedDependencies[index].id,
-            );
-            if (!dependenciesHaveChanged) {
-              queryBuilder.markAsModified();
-              return resultNode;
-            }
-          }
-          lastResolvedDependenciesIds = resolvedDependencies.map(({ id }) => id);
-          if (isCallOperation(operation)) {
-            const { args } = operation.properties;
-            const argsValues = toNodeDefinitionArray(resolvedDependencies);
-            let resolvedOperation: CallOperation;
-            if (!args) {
-              resolvedOperation = callOperation();
-            } else if (isCallArgumentArray(args)) {
-              // Handle the array of arguments
-              resolvedOperation = callOperation(argsValues);
-            } else {
-              // Handle the named arguments
-              resolvedOperation = callOperation(fromPairs(zip(Object.keys(args), argsValues)));
-            }
-            const childPath = [...path, { id: operation.id, operation: resolvedOperation }];
-            const disposeRequest = queryBuilder.addRequest(childPath, (result) =>
-              resultNode.update(assignPlaceholderPath(node, path, result)),
-            );
-            this.setData((data) => ({
-              ...data,
-              disposeRequest: {
-                ...data.disposeRequest,
-                [operation.id]: disposeRequest,
-              },
-            }));
-          } else if (isGetChildOperation(operation)) {
-            const childPath = [...path, { id: operation.id, operation }];
-            const dispose = queryBuilder.addRequest(childPath);
-            this.setData((data) => ({
-              ...data,
-              disposeRequest: {
-                ...data.disposeRequest,
-                [operation.id]: dispose,
-              },
-            }));
-            return placeholder(queryBuilder, childPath);
-          } else if (isGetItemsOperation(operation)) {
-            const data = this.getData();
-            const disposePreviousGetItems =
-              data.disposeRequest && data.disposeRequest[operation.id];
-            if (disposePreviousGetItems) {
-              disposePreviousGetItems();
-            }
-            const operationWithResolvedTransforms = getItemsOperation(
-              toNodeDefinitionArray(resolvedDependencies),
-            );
-            const childPath = [
-              ...path,
-              { id: operation.id, operation: operationWithResolvedTransforms },
-            ];
-            const dispose = queryBuilder.addRequest(childPath, (result) => {
-              resultNode.update(assignPlaceholderPath(node, path, result));
-            });
-            this.setData((data) => ({
-              ...data,
-              disposeRequest: {
-                ...data.disposeRequest,
-                [operation.id]: dispose,
-              },
-            }));
-            resultNode.update(placeholder(queryBuilder, childPath));
-          } else if (isIterateOperation(operation)) {
-            const childPath = [...path, { id: operation.id, operation: getItemsOperation() }];
-            resultNode.update(placeholder(queryBuilder, childPath));
-            const dispose = queryBuilder.addRequest(childPath, (result) => {
-              resultNode.update(assignPlaceholderPath(node, path, toIteratorResult(result)));
-            });
-            this.setData((data) => ({
-              ...data,
-              disposeRequest: {
-                ...data.disposeRequest,
-                [operation.id]: dispose,
-              },
-            }));
-          } else if (isSetOperation(operation)) {
-            this.setData((data) => ({
-              ...data,
-              disposeRequest: {
-                ...data.disposeRequest,
-                [operation.id]: queryBuilder.addRequest(
-                  [...path, { id: operation.id, operation }],
-                  (result) => {
-                    resultNode.update(
-                      assignPlaceholderPath(
-                        node,
-                        path,
-                        isOkNodeDefinition(result) ? operation.properties.value : result,
-                      ),
-                    );
-                  },
-                ),
-              },
-            }));
-          } else {
-            this.setData((data) => ({
-              ...data,
-              disposeRequest: {
-                ...data.disposeRequest,
-                [operation.id]: queryBuilder.addRequest(
-                  [...path, { id: operation.id, operation }],
-                  (result) => {
-                    resultNode.update(assignPlaceholderPath(node, path, result));
-                  },
-                ),
-              },
-            }));
-          }
-          return resultNode;
-        };
-        const dependencies = getOperationDependencies();
-        if (dependencies && dependencies.length > 0) {
-          this.setState((state) => ({
-            ...state,
-            results: {
-              ...state.results,
-              [operation.id]: resolve(dependencies, dependenciesResolved),
-            },
-          }));
-        } else {
-          this.setState((state) => ({
-            ...state,
-            results: {
-              ...state.results,
-              [operation.id]: dependenciesResolved([]),
-            },
-          }));
-        }
+        handleOperation(this, node, operation);
       },
       onInvalidate(
         this: NodeExecutionContext<PlaceholderNodeState, PlaceholderNodeData>,
         node: PlaceholderNode,
         operation: GraphOperation,
       ): void {
-        if (!isEvaluateOperation(operation)) return;
-        const results = this.getState().results;
-        const { path, queryBuilder } = node.definition.properties;
-        const resultNode =
-          results && results[operation.id]
-            ? (results[operation.id] as ExternalStatefulNodeDefinition<NodeDefinition | GraphNode>)
-            : stateful<NodeDefinition | GraphNode>(pending());
-        this.setData((data) => ({
-          ...data,
-          disposeRequest: {
-            ...data.disposeRequest,
-            [operation.id]: queryBuilder.addRequest(
-              [...path, { id: operation.id, operation }],
-              (result) => {
-                resultNode.update(assignPlaceholderPath(node, path, result));
-              },
-            ),
-          },
-        }));
-        this.setState((state) => ({
-          ...state,
-          results: {
-            ...state.results,
-            [operation.id]: resultNode,
-          },
-        }));
+        if (isGetChildOperation(operation)) return;
+        handleOperation(this, node, operation);
       },
       onUnsubscribe(
         this: NodeExecutionContext<PlaceholderNodeState, PlaceholderNodeData>,
@@ -406,4 +221,188 @@ function toIteratorResult(node: NodeDefinition): NodeDefinition {
 
 function toNodeDefinitionArray(items: Array<GraphNode | NodeDefinition>): Array<NodeDefinition> {
   return items.map((item) => (isGraphNode(item) ? item.definition : item));
+}
+
+function handleOperation(
+  context: NodeExecutionContext<PlaceholderNodeState, PlaceholderNodeData>,
+  node: PlaceholderNode,
+  operation: GraphOperation,
+): void {
+  const { path, queryBuilder } = node.definition.properties;
+  const { statefulNodes } = context.getState();
+  const statefulNode =
+    statefulNodes && statefulNodes[operation.id]
+      ? (statefulNodes[operation.id] as ExternalStatefulNodeDefinition<NodeDefinition | GraphNode>)
+      : stateful<NodeDefinition | GraphNode>(pending());
+  const getOperationDependencies = (): Array<NodeDependency> | undefined => {
+    if (isCallOperation(operation)) {
+      const { args } = operation.properties;
+      if (!args) return [];
+      if (Array.isArray(args)) {
+        return args.map((arg) => ({
+          target: arg,
+          once: true,
+        }));
+      }
+      return Object.keys(args).map((name) => ({
+        target: args[name],
+        once: true,
+      }));
+    }
+    if (isGetItemsOperation(operation)) {
+      return operation.properties.transforms.map((transform) => {
+        const transformNode = isNodeDefinition(transform)
+          ? withScopeFrom(node, transform)
+          : transform;
+        const resolveTransform = hoistDependencies(transformNode);
+        return { target: resolveTransform.definition };
+      });
+    }
+    return undefined;
+  };
+  let lastResolvedDependenciesIds: Array<string> | undefined;
+  const dependenciesResolved = (resolvedDependencies: Array<GraphNode>): NodeDefinition => {
+    if (lastResolvedDependenciesIds) {
+      const dependenciesHaveChanged = lastResolvedDependenciesIds.some(
+        (id, index) => id !== resolvedDependencies[index].id,
+      );
+      if (!dependenciesHaveChanged) {
+        queryBuilder.markAsModified();
+        return statefulNode;
+      }
+    }
+    lastResolvedDependenciesIds = resolvedDependencies.map(({ id }) => id);
+    if (isCallOperation(operation)) {
+      const { args } = operation.properties;
+      const argsValues = toNodeDefinitionArray(resolvedDependencies);
+      let resolvedOperation: CallOperation;
+      if (!args) {
+        resolvedOperation = callOperation();
+      } else if (isCallArgumentArray(args)) {
+        // Handle the array of arguments
+        resolvedOperation = callOperation(argsValues);
+      } else {
+        // Handle the named arguments
+        resolvedOperation = callOperation(fromPairs(zip(Object.keys(args), argsValues)));
+      }
+      const childPath = [...path, { id: operation.id, operation: resolvedOperation }];
+      const disposeRequest = queryBuilder.addRequest(childPath, (result) =>
+        statefulNode.update(assignPlaceholderPath(node, path, result)),
+      );
+      context.setData((data) => ({
+        ...data,
+        disposeRequest: {
+          ...data.disposeRequest,
+          [operation.id]: disposeRequest,
+        },
+      }));
+    } else if (isGetChildOperation(operation)) {
+      const childPath = [...path, { id: operation.id, operation }];
+      const dispose = queryBuilder.addRequest(childPath);
+      context.setData((data) => ({
+        ...data,
+        disposeRequest: {
+          ...data.disposeRequest,
+          [operation.id]: dispose,
+        },
+      }));
+      return placeholder(queryBuilder, childPath);
+    } else if (isGetItemsOperation(operation)) {
+      const data = context.getData();
+      const disposePreviousGetItems = data.disposeRequest && data.disposeRequest[operation.id];
+      if (disposePreviousGetItems) {
+        disposePreviousGetItems();
+      }
+      const operationWithResolvedTransforms = getItemsOperation(
+        toNodeDefinitionArray(resolvedDependencies),
+      );
+      const childPath = [...path, { id: operation.id, operation: operationWithResolvedTransforms }];
+      const dispose = queryBuilder.addRequest(childPath, (result) => {
+        statefulNode.update(assignPlaceholderPath(node, path, result));
+      });
+      context.setData((data) => ({
+        ...data,
+        disposeRequest: {
+          ...data.disposeRequest,
+          [operation.id]: dispose,
+        },
+      }));
+      statefulNode.update(placeholder(queryBuilder, childPath));
+    } else if (isIterateOperation(operation)) {
+      const childPath = [...path, { id: operation.id, operation: getItemsOperation() }];
+      statefulNode.update(placeholder(queryBuilder, childPath));
+      const dispose = queryBuilder.addRequest(childPath, (result) => {
+        statefulNode.update(assignPlaceholderPath(node, path, toIteratorResult(result)));
+      });
+      context.setData((data) => ({
+        ...data,
+        disposeRequest: {
+          ...data.disposeRequest,
+          [operation.id]: dispose,
+        },
+      }));
+    } else if (isSetOperation(operation)) {
+      context.setData((data) => ({
+        ...data,
+        disposeRequest: {
+          ...data.disposeRequest,
+          [operation.id]: queryBuilder.addRequest(
+            [...path, { id: operation.id, operation }],
+            (result) => {
+              statefulNode.update(
+                assignPlaceholderPath(
+                  node,
+                  path,
+                  isOkNodeDefinition(result) ? operation.properties.value : result,
+                ),
+              );
+            },
+          ),
+        },
+      }));
+    } else {
+      context.setData((data) => ({
+        ...data,
+        disposeRequest: {
+          ...data.disposeRequest,
+          [operation.id]: queryBuilder.addRequest(
+            [...path, { id: operation.id, operation }],
+            (result) => {
+              if ((global as any).DEBUG) {
+                debugger;
+              }
+              statefulNode.update(assignPlaceholderPath(node, path, result));
+            },
+          ),
+        },
+      }));
+    }
+    return statefulNode;
+  };
+  const dependencies = getOperationDependencies();
+  if (dependencies && dependencies.length > 0) {
+    context.setState((state) => ({
+      ...state,
+      results: {
+        ...state.results,
+        [operation.id]: resolve(dependencies, dependenciesResolved),
+      },
+      statefulNodes: {
+        ...statefulNodes,
+        [operation.id]: statefulNode,
+      },
+    }));
+  } else {
+    context.setState((state) => ({
+      ...state,
+      results: {
+        ...state.results,
+        [operation.id]: dependenciesResolved([]),
+      },
+      statefulNodes: {
+        ...statefulNodes,
+        [operation.id]: statefulNode,
+      },
+    }));
+  }
 }

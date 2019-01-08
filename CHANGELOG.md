@@ -14,6 +14,7 @@ title: Latest Changes
 - Fixed a bug in a "Muster on the server" example.
 - Fixed a bug in a `location()` node - using browser history caused a reload every time the location
   got changed. 
+- Fixed a bug with invalidating `getItems` requests over the proxy.
 
 ## 6.5.0 (2018-12-06)
 

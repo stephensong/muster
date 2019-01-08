@@ -17,6 +17,10 @@
     "type": "git",
     "url": "https://github.com/dwstech/muster.git"
   },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
   "scripts": {
     "preverify": "yarn build",
     "verify": "yarn lint && yarn test && yarn compile-doc-examples",
@@ -51,8 +55,6 @@
     "new-version": "lerna version --force-publish --no-push",
     "release:local": "yarn build:full && yarn release",
     "release": "./scripts/release",
-    "prepush": "./scripts/verify \"yarn verify\"",
-    "precommit": "lint-staged",
     "generate-docs": "typedoc --out packages/website/static/api/latest --sourcefile-url-prefix \"https://github.com/dwstech/muster/blob/develop/packages/\"",
     "pregenerate-docs": "del-cli ./docs/api ./packages/website/static/api/latest",
     "preversion-docs": "del-cli ./docs/api './packages/website/static/api/'$npm_package_version",
@@ -120,5 +122,11 @@
   },
   "resolutions": {
     "event-stream": "3.3.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "./scripts/verify \"yarn verify\""
+    }
   }
 }

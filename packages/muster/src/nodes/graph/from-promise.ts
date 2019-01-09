@@ -25,11 +25,11 @@ import { toValue } from './value';
  */
 export interface FromPromiseNode
   extends StatefulGraphNode<
-      'fromPromise',
-      FromPromiseNodeProperties,
-      FromPromiseNodeState,
-      FromPromiseNodeData
-    > {}
+    'fromPromise',
+    FromPromiseNodeProperties,
+    FromPromiseNodeState,
+    FromPromiseNodeData
+  > {}
 
 /**
  * A definition of the [[fromPromise]] node.
@@ -37,20 +37,21 @@ export interface FromPromiseNode
  */
 export interface FromPromiseNodeDefinition
   extends NodeDefinition<
-      'fromPromise',
-      FromPromiseNodeProperties,
-      FromPromiseNodeState,
-      FromPromiseNodeData
-    > {}
+    'fromPromise',
+    FromPromiseNodeProperties,
+    FromPromiseNodeState,
+    FromPromiseNodeData
+  > {}
 
-export type GetterFactory = ((params: Params) => Promise<NodeDefinition | NodeLike>);
+export type GenericFactory = ((params: Params) => Promise<NodeDefinition | NodeLike>);
 export type SetterFactory = ((
   params: Params,
   value: any,
 ) => Promise<OkNodeDefinition | ErrorNodeDefinition>);
 
 export interface FromPromiseNodeProperties {
-  get: GetterFactory | undefined;
+  clear: GenericFactory | undefined;
+  get: GenericFactory | undefined;
   set: SetterFactory | undefined;
 }
 
@@ -82,6 +83,7 @@ export const FromPromiseNodeType: StatefulNodeType<
     updateError: types.optional(graphTypes.nodeDefinition),
   },
   shape: {
+    clear: types.optional(types.saveHash(types.func)),
     get: types.optional(types.saveHash(types.func)),
     set: types.optional(types.saveHash(types.func)),
   },
@@ -93,6 +95,48 @@ export const FromPromiseNodeType: StatefulNodeType<
     };
   },
   operations: {
+    clear: {
+      run(
+        node: FromPromiseNode,
+        options: never,
+        dependencies: never,
+        context: never,
+        state: FromPromiseNodeState,
+      ): NodeDefinition {
+        if (!node.definition.properties.clear) {
+          return error('Specified fromPromise node does not support `clear` operation');
+        }
+        return state.pendingUpdate ? pending() : state.updateError || ok();
+      },
+      onSubscribe(
+        this: NodeExecutionContext<FromPromiseNodeState, FromPromiseNodeData>,
+        node: FromPromiseNode,
+      ): void {
+        const { clear } = node.definition.properties;
+        if (!clear) return;
+        const pendingUpdate = Promise.resolve(clear(getParams(node.context)))
+          .catch((e) => error(e))
+          .then((result) => {
+            if (this.getState().pendingUpdate === pendingUpdate) {
+              this.setState((state) => ({
+                ...state,
+                currentValue: isOkNodeDefinition(result) ? undefined : state.currentValue,
+                pendingUpdate: undefined,
+                updateError: isErrorNodeDefinition(result) ? result : undefined,
+              }));
+              if (isOkNodeDefinition(result) && this.getData().isSubscribed) {
+                fetchValue(this, node);
+              }
+            }
+            return result;
+          });
+        this.setState((state) => ({
+          ...state,
+          pendingUpdate,
+          pendingError: undefined,
+        }));
+      },
+    },
     evaluate: {
       run(
         node: FromPromiseNode,
@@ -203,8 +247,7 @@ export const FromPromiseNodeType: StatefulNodeType<
           currentValue: undefined,
           pendingUpdate: undefined,
         }));
-        const { isSubscribed } = this.getData();
-        if (isSubscribed) {
+        if (this.getData().isSubscribed) {
           fetchValue(this, node);
         }
       },
@@ -212,12 +255,18 @@ export const FromPromiseNodeType: StatefulNodeType<
   },
 });
 
+export interface FromPromiseOperations {
+  clear?: GenericFactory;
+  get?: GenericFactory;
+  set?: SetterFactory;
+}
+
 /**
  * Creates a new instance of [[fromPromise]] node, which is a type of [[NodeDefinition]] useful when integrating asynchronous code with muster.
  * This node can be used when making API requests from within muster code. These requests may retrieve or update data
  * from a remote service.
  *
- * The [[fromPromise]] allows for handling `set` requests through a [set](_nodes_graph_set_.html#set).
+ * The [[fromPromise]] allows for handling `set` requests through a [set](_nodes_graph_set_.html#set) as well as the `clear` requests through a [clear]] node..
  * See the "**Handling set requests**" example for more information.
  *
  *
@@ -256,15 +305,15 @@ export const FromPromiseNodeType: StatefulNodeType<
  *
  * @example **Promise factory params**
  * ```js
- * import muster, { fromPromise, match, ref, tree, types, value } from '@dws/muster';
+ * import muster, { fromPromise, match, ref, toNode, types } from '@dws/muster';
  *
  * const app = muster({
  *   user: {
  *     [match(types.string, 'id')]: fromPromise(({ id }) =>
  *       // You could make a request to an API endpoint here...
- *       Promise.resolve(tree({
- *         id: value(id),
- *         name: value(`User ${id}`),
+ *       Promise.resolve(toNode({
+ *         id: id,
+ *         name: `User ${id}`,
  *       })),
  *     ),
  *   },
@@ -282,7 +331,7 @@ export const FromPromiseNodeType: StatefulNodeType<
  *
  * @example **Implementing set promise factory**
  * ```ts
- * import muster, { fromPromise, ref, set, tree } from '@dws/muster';
+ * import muster, { fromPromise, ref, set } from '@dws/muster';
  *
  * const userSettings = {
  *   homepage: 'https://www.db.com',
@@ -321,14 +370,64 @@ export const FromPromiseNodeType: StatefulNodeType<
  * // Setting homepage
  * // Homepage: https://www.github.com
  * ```
+ *
+ *
+ * @example **Implementing a clear promise factory**
+ * ```javascript
+ * import muster, { clear, fromPromise, ref, set, toNode } from '@dws/muster';
+ *
+ * const mockSettings = {
+ *   homepage: 'https://some.url',
+ * };
+ *
+ * const app = muster({
+ *   settings: fromPromise({
+ *     // Use a real API instead of mockSettings
+ *     get: () => Promise.resolve(toNode(mockSettings)),
+ *     set: (params, settings) => {
+ *       mockSettings = settings;
+ *       return Promise.resolve(ok());
+ *     },
+ *     clear: () => {
+ *       mockSettings = { homepage: undefined };
+ *       return Promise.resolve(ok());
+ *     },
+ *   }),
+ * });
+ *
+ * app.resolve(query(ref('settings'), { homepage: true })).subscribe((settings) => {
+ *   console.log('Settings: ', settings);
+ * });
+ *
+ * console.log('Changing settings');
+ * await app.resolve(set(ref('settings'), { homepage: 'https://other.url' }));
+ *
+ * console.log('Clearing settings');
+ * await app.resolve(clear(ref('settings')));
+ *
+ * // Console output:
+ * // Settings: { homepage: 'https://some.url' }
+ * // Changing settings
+ * // Settings: { homepage: 'https://other.url' }
+ * // Clearing settings
+ * // Settings: { homepage: undefined }
+ * ```
  */
 export function fromPromise(
-  definition: GetterFactory | { get?: GetterFactory; set?: SetterFactory },
+  definition: GenericFactory | FromPromiseOperations,
   setFactory?: SetterFactory,
 ): FromPromiseNodeDefinition {
+  if (typeof definition === 'function') {
+    return createNodeDefinition(FromPromiseNodeType, {
+      clear: undefined,
+      get: definition,
+      set: setFactory,
+    } as FromPromiseNodeProperties);
+  }
   return createNodeDefinition(FromPromiseNodeType, {
-    get: typeof definition === 'function' ? definition : definition.get,
-    set: typeof definition === 'function' ? setFactory : definition.set,
+    clear: definition.clear,
+    get: definition.get,
+    set: definition.set,
   });
 }
 

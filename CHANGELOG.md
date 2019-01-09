@@ -20,6 +20,19 @@ title: Latest Changes
 
 - Added a unit test that checks if a createBehavior node can be used to create custom evaluate/getChild behavior.
 
+### 🚀 New Features
+
+- Added a new `clear` operation to `fromPromise` node:
+  ```javascript
+  muster({
+    settings: fromPromise({
+      get: () => Promise.resolve(undefined), // Get the settings
+      set: () => Promise.resolve(ok()), // Set the settings
+      clear: () => Promise.resolve(ok()), // Clear the settings
+    })
+  })
+  ```
+
 ## 6.5.0 (2018-12-06)
 
 ### 🚀 New Features

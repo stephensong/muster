@@ -32,6 +32,22 @@ title: Latest Changes
     })
   })
   ```
+- Added the `omitNils` flag to `query()` and `querySet()` nodes. This flag instructs Muster to stop resolving nested query when it encounters a `nil()` node:
+  ```javascript
+  // GIVEN a muster graph
+  const app = muster({
+    user: nil(),
+  });
+  // Query without omitNils
+  await app.resolve(query(ref('user'), { firstName: true, lastName: true }));
+  // === { firstName: undefined, lastName: undefined }
+  // Query WITH omitNils
+  await app.resolve(query(
+    ref('user'),
+    { firstName: true, lastName: true },
+    { omitNils: true },
+  )); // === undefined
+  ```
 
 ## 6.5.0 (2018-12-06)
 

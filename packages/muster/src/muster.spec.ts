@@ -1,8 +1,8 @@
 import { nil } from '.';
-
 import { Muster } from './muster';
-
 const pkg = require('../package.json');
+
+jest.unmock('@dws/muster-version');
 
 describe('Muster', () => {
   describe('GIVEN a muster instance', () => {

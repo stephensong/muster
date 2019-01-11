@@ -23,6 +23,9 @@
       "learn/variables": {
         "title": "Variables"
       },
+      "learn/matchers": {
+        "title": "Matchers"
+      },
       "learn/async-data": {
         "title": "Asynchronous Data"
       },

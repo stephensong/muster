@@ -8,6 +8,7 @@
       "learn/graph-structure",
       "learn/nodes",
       "learn/variables",
+      "learn/matchers",
       "learn/async-data",
       "learn/functions",
       "learn/queries",

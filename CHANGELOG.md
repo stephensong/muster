@@ -20,6 +20,11 @@ title: Latest Changes
 
 - Added a unit test that checks if a createBehavior node can be used to create custom evaluate/getChild behavior.
 
+### 📝 Documentation
+- Added a matchers page to the learn section explaining branch matchers and type matchers.
+- Added some answers to Github issues into the documentation.
+- Added documentation for the `omitNils` flag to the queries page.
+
 ### 🚀 New Features
 
 - Added a new `clear` operation to `fromPromise` node:

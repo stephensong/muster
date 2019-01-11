@@ -10,7 +10,8 @@
     "esm",
     "dist",
     "node_modules",
-    "**/*.spec.ts*"
+    "**/*.spec.ts*",
+    "__mocks__"
   ],
   "references": [
     { "path": "../muster" }

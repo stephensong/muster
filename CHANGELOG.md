@@ -7,24 +7,6 @@ title: Latest Changes
 
 ## Unreleased
 
-### 🐛 Bug Fixes
-
-- Fixed a problem with serialising Graph Metadata for the purpose of using it in Muster DevTools.
-- Fixed a problem with an incorrect Licence link.
-- Fixed a bug in a "Muster on the server" example.
-- Fixed a bug in a `location()` node - using browser history caused a reload every time the location
-  got changed.
-- Fixed a bug with invalidating `getItems` requests over the proxy. 
-  
-### 💅 Polish
-
-- Added a unit test that checks if a createBehavior node can be used to create custom evaluate/getChild behavior.
-
-### 📝 Documentation
-- Added a matchers page to the learn section explaining branch matchers and type matchers.
-- Added some answers to Github issues into the documentation.
-- Added documentation for the `omitNils` flag to the queries page.
-
 ### 🚀 New Features
 
 - Added a new `clear` operation to `fromPromise` node:
@@ -53,6 +35,24 @@ title: Latest Changes
     { omitNils: true },
   )); // === undefined
   ```
+
+### 🐛 Bug Fixes
+
+- Fixed a problem with serialising Graph Metadata for the purpose of using it in Muster DevTools.
+- Fixed a problem with an incorrect Licence link.
+- Fixed a bug in a "Muster on the server" example.
+- Fixed a bug in a `location()` node - using browser history caused a reload every time the location
+  got changed.
+- Fixed a bug with invalidating `getItems` requests over the proxy. 
+  
+### 💅 Polish
+
+- Added a unit test that checks if a createBehavior node can be used to create custom evaluate/getChild behavior.
+
+### 📝 Documentation
+- Added a matchers page to the learn section explaining branch matchers and type matchers.
+- Added some answers to Github issues into the documentation.
+- Added documentation for the `omitNils` flag to the queries page.
 
 ## 6.5.0 (2018-12-06)
 

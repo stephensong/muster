@@ -7,6 +7,8 @@ title: Latest Changes
 
 ## Unreleased
 
+## 6.6.0 (2019-01-15)
+
 ### 🚀 New Features
 
 - Added a new `clear` operation to `fromPromise` node:

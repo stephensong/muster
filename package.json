@@ -1,7 +1,7 @@
 {
   "name": "@dws/muster-base",
   "author": "DWS Technology",
-  "version": "6.5.0",
+  "version": "6.6.0",
   "description": "A universal data layer for components and services",
   "keywords": [
     "data",
@@ -52,7 +52,7 @@
     "build:playground": "lerna run build --scope @dws/muster-playground",
     "build:playground:ci": "lerna run build --scope @dws/muster-playground --stream",
     "build:website:ci": "lerna run build --scope @dws/muster-website --stream",
-    "new-version": "lerna version --force-publish --no-push",
+    "new-version": "lerna version --force-publish --no-push && echo 'Bump root package version now!'",
     "release:local": "yarn build:full && yarn release",
     "release": "./scripts/release",
     "postinstall": "patch-package",

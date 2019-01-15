@@ -23,9 +23,6 @@
       "learn/variables": {
         "title": "Variables"
       },
-      "learn/matchers": {
-        "title": "Matchers"
-      },
       "learn/async-data": {
         "title": "Asynchronous Data"
       },
@@ -40,6 +37,9 @@
       },
       "learn/control-flow": {
         "title": "Control Flow"
+      },
+      "learn/matchers": {
+        "title": "Matchers"
       },
       "overview": {
         "title": "Muster",
@@ -278,6 +278,24 @@
       },
       "version-6.5.0-data-store": {
         "title": "How Muster Stores Data"
+      },
+      "version-6.6.0-changelog": {
+        "title": "Latest Changes"
+      },
+      "version-6.6.0-graph-structure": {
+        "title": "Graph Data Structure"
+      },
+      "version-6.6.0-queries": {
+        "title": "Queries"
+      },
+      "version-6.6.0-matchers": {
+        "title": "Matchers"
+      },
+      "version-6.6.0-muster-server": {
+        "title": "Muster on the Server"
+      },
+      "version-6.6.0-muster-cookbook": {
+        "title": "Muster Cookbook"
       }
     },
     "links": {

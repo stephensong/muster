@@ -1,0 +1,232 @@
+diff --git a/node_modules/typedoc-plugin-sourcefile-url/dist/SourcefileUrlMapPlugin.js b/node_modules/typedoc-plugin-sourcefile-url/dist/SourcefileUrlMapPlugin.js
+index e64e237..3e0b10d 100644
+--- a/node_modules/typedoc-plugin-sourcefile-url/dist/SourcefileUrlMapPlugin.js
++++ b/node_modules/typedoc-plugin-sourcefile-url/dist/SourcefileUrlMapPlugin.js
+@@ -1,129 +1,111 @@
+ "use strict";
+-var __extends = (this && this.__extends) || (function () {
+-    var extendStatics = Object.setPrototypeOf ||
+-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+-    return function (d, b) {
+-        extendStatics(d, b);
+-        function __() { this.constructor = d; }
+-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+-    };
+-})();
+ var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+-    return c > 3 && r && Object.defineProperty(target, key, r), r;
++  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
++  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
++  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
++  return c > 3 && r && Object.defineProperty(target, key, r), r;
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+-var Path = require("path");
+-var FS = require("fs-extra");
+-var component_1 = require("typedoc/dist/lib/utils/component");
+-var components_1 = require("typedoc/dist/lib/converter/components");
+-var converter_1 = require("typedoc/dist/lib/converter/converter");
+-var SourcefileUrlMapPlugin = (function (_super) {
+-    __extends(SourcefileUrlMapPlugin, _super);
+-    function SourcefileUrlMapPlugin() {
+-        return _super !== null && _super.apply(this, arguments) || this;
++const Path = require("path");
++const FS = require("fs-extra");
++const component_1 = require("typedoc/dist/lib/utils/component");
++const components_1 = require("typedoc/dist/lib/converter/components");
++const converter_1 = require("typedoc/dist/lib/converter/converter");
++let SourcefileUrlMapPlugin = class SourcefileUrlMapPlugin extends components_1.ConverterComponent {
++  initialize() {
++    this.listenTo(this.owner, converter_1.Converter.EVENT_BEGIN, this.onBegin);
++  }
++  onBegin() {
++    // read options parameter
++    const options = this.application.options;
++    const mapRelativePath = options.getValue('sourcefile-url-map');
++    const urlPrefix = options.getValue('sourcefile-url-prefix');
++    if ((typeof mapRelativePath !== 'string') && (typeof urlPrefix !== 'string')) {
++      return;
+     }
+-    SourcefileUrlMapPlugin.prototype.initialize = function () {
+-        this.listenTo(this.owner, converter_1.Converter.EVENT_BEGIN, this.onBegin);
+-    };
+-    SourcefileUrlMapPlugin.prototype.onBegin = function () {
+-        // read options parameter
+-        var options = this.application.options;
+-        var mapRelativePath = options.getValue('sourcefile-url-map');
+-        var urlPrefix = options.getValue('sourcefile-url-prefix');
+-        if ((typeof mapRelativePath !== 'string') && (typeof urlPrefix !== 'string')) {
+-            return;
+-        }
+-        try {
+-            if ((typeof mapRelativePath === 'string') && (typeof urlPrefix === 'string')) {
+-                throw new Error('use either --sourcefile-url-prefix or --sourcefile-url-map option');
+-            }
+-            if (typeof mapRelativePath === 'string') {
+-                this.readMappingJson(mapRelativePath);
+-            }
+-            else if (typeof urlPrefix === 'string') {
+-                this.mappings = [{
+-                        pattern: new RegExp('^'),
+-                        replace: urlPrefix
+-                    }];
+-            }
+-            // register handler
+-            this.listenTo(this.owner, converter_1.Converter.EVENT_RESOLVE_END, this.onEndResolve);
+-        }
+-        catch (e) {
+-            console.error('typedoc-plugin-sourcefile-url: ' + e.message);
+-        }
+-    };
+-    SourcefileUrlMapPlugin.prototype.readMappingJson = function (mapRelativePath) {
+-        // load json
+-        var mapAbsolutePath = Path.join(process.cwd(), mapRelativePath);
+-        var json;
++    try {
++      if ((typeof mapRelativePath === 'string') && (typeof urlPrefix === 'string')) {
++        throw new Error('use either --sourcefile-url-prefix or --sourcefile-url-map option');
++      }
++      if (typeof mapRelativePath === 'string') {
++        this.readMappingJson(mapRelativePath);
++      }
++      else if (typeof urlPrefix === 'string') {
++        this.mappings = [{
++          pattern: new RegExp('^'),
++          replace: urlPrefix
++        }];
++      }
++      // register handler
++      this.listenTo(this.owner, converter_1.Converter.EVENT_RESOLVE_END, this.onEndResolve);
++    }
++    catch (e) {
++      console.error('typedoc-plugin-sourcefile-url: ' + e.message);
++    }
++  }
++  readMappingJson(mapRelativePath) {
++    // load json
++    const mapAbsolutePath = Path.join(process.cwd(), mapRelativePath);
++    let json;
++    try {
++      json = JSON.parse(FS.readFileSync(mapAbsolutePath, 'utf8'));
++    }
++    catch (e) {
++      throw new Error('error reading --sourcefile-url-map json file: ' + e.message);
++    }
++    // validate json
++    if (!(json instanceof Array)) {
++      throw new Error('--sourcefile-url-map json file has to have Array as root element');
++    }
++    this.mappings = [];
++    // validate & process json
++    for (const mappingJson of json) {
++      if (mappingJson instanceof Object && mappingJson.hasOwnProperty('pattern') && mappingJson.hasOwnProperty('replace') && typeof mappingJson['pattern'] === 'string' && typeof mappingJson['replace'] === 'string') {
++        let regExp = null;
+         try {
+-            json = JSON.parse(FS.readFileSync(mapAbsolutePath, 'utf8'));
++          regExp = new RegExp(mappingJson['pattern']);
+         }
+         catch (e) {
+-            throw new Error('error reading --sourcefile-url-map json file: ' + e.message);
++          throw new Error('error reading --sourcefile-url-map: ' + e.message);
+         }
+-        // validate json
+-        if (!(json instanceof Array)) {
+-            throw new Error('--sourcefile-url-map json file has to have Array as root element');
+-        }
+-        this.mappings = [];
+-        // validate & process json
+-        for (var _i = 0, json_1 = json; _i < json_1.length; _i++) {
+-            var mappingJson = json_1[_i];
+-            if (mappingJson instanceof Object && mappingJson.hasOwnProperty('pattern') && mappingJson.hasOwnProperty('replace') && typeof mappingJson['pattern'] === 'string' && typeof mappingJson['replace'] === 'string') {
+-                var regExp = null;
+-                try {
+-                    regExp = new RegExp(mappingJson['pattern']);
+-                }
+-                catch (e) {
+-                    throw new Error('error reading --sourcefile-url-map: ' + e.message);
+-                }
+-                this.mappings.push({
+-                    pattern: regExp,
+-                    replace: mappingJson['replace']
+-                });
+-            }
+-            else {
+-                throw new Error('--sourcefile-url-map json file syntax has to be: [{"pattern": "REGEX PATTERN STRING WITHOUT ENCLOSING SLASHES", replace: "STRING"}, ETC.]');
+-            }
+-        }
+-    };
+-    SourcefileUrlMapPlugin.prototype.onEndResolve = function (context) {
+-        if (this.mappings === undefined) {
+-            throw new Error('assertion fail');
+-        }
+-        var project = context.project;
+-        // process mappings
+-        for (var _i = 0, _a = project.files; _i < _a.length; _i++) {
+-            var sourceFile = _a[_i];
+-            for (var _b = 0, _c = this.mappings; _b < _c.length; _b++) {
+-                var mapping = _c[_b];
+-                if (sourceFile.fileName.match(mapping.pattern)) {
+-                    sourceFile.url = sourceFile.fileName.replace(mapping.pattern, mapping.replace);
+-                    break;
+-                }
+-            }
+-        }
+-        // add line anchors
+-        for (var key in project.reflections) {
+-            var reflection = project.reflections[key];
+-            if (reflection.sources) {
+-                reflection.sources.forEach(function (source) {
+-                    if (source.file && source.file.url) {
+-                        source.url = source.file.url + '#L' + source.line;
+-                    }
+-                });
+-            }
++        this.mappings.push({
++          pattern: regExp,
++          replace: mappingJson['replace']
++        });
++      }
++      else {
++        throw new Error('--sourcefile-url-map json file syntax has to be: [{"pattern": "REGEX PATTERN STRING WITHOUT ENCLOSING SLASHES", replace: "STRING"}, ETC.]');
++      }
++    }
++  }
++  onEndResolve(context) {
++    if (this.mappings === undefined) {
++      throw new Error('assertion fail');
++    }
++    const project = context.project;
++    // process mappings
++    for (const sourceFile of project.files) {
++      for (const mapping of this.mappings) {
++        if (sourceFile.fileName.match(mapping.pattern)) {
++          sourceFile.url = sourceFile.fileName.replace(mapping.pattern, mapping.replace);
++          break;
+         }
+-    };
+-    return SourcefileUrlMapPlugin;
+-}(components_1.ConverterComponent));
++      }
++    }
++    // add line anchors
++    for (let key in project.reflections) {
++      const reflection = project.reflections[key];
++      if (reflection.sources) {
++        reflection.sources.forEach((source) => {
++          if (source.file && source.file.url) {
++            source.url = source.file.url + '#L' + source.line;
++          }
++        });
++      }
++    }
++  }
++};
+ SourcefileUrlMapPlugin = __decorate([
+-    component_1.Component({ name: 'sourcefile-url' })
++  component_1.Component({ name: 'sourcefile-url' })
+ ], SourcefileUrlMapPlugin);
+ exports.SourcefileUrlMapPlugin = SourcefileUrlMapPlugin;

@@ -1,7 +1,7 @@
 {
   "name": "@dws/muster-worker",
   "version": "6.5.0",
-  "description": "Muster Worker",
+  "description": "Muster middleware for running graphs inside a worker",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -12,6 +12,23 @@
   "files": [
     "/dist",
     "/esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwstech/muster.git"
+  },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
+  "keywords": [
+    "muster",
+    "worker",
+    "webworker",
+    "worker-threads",
+    "data",
+    "state-management",
+    "graphs"
   ],
   "scripts": {
     "clean": "del-cli ./dist ./esm",
@@ -34,7 +51,7 @@
     "@types/lodash-es": "^4.14.74",
     "ts-loader": "^5.2.2",
     "typescript": "3.2.2",
-    "webpack": "^4.19.0",
+    "webpack": "^4.28.4",
     "webpack-dev-server": "^3.1.8"
   },
   "engines": {

@@ -1,7 +1,7 @@
 {
   "name": "@dws/muster",
   "version": "6.5.0",
-  "description": "Muster Data Library",
+  "description": "A universal data layer for components and services",
   "module": "esm/index.js",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -15,6 +15,22 @@
     "dist",
     "esm",
     "_bundles"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwstech/muster.git"
+  },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
+  "keywords": [
+    "muster",
+    "javascript",
+    "typescript",
+    "data",
+    "state-management",
+    "graphs"
   ],
   "scripts": {
     "clean": "del-cli ./dist ./esm ./_bundles",
@@ -54,7 +70,7 @@
     "del-cli": "^1.1.0",
     "ts-loader": "^5.2.2",
     "typescript": "3.2.2",
-    "webpack": "^4.19.0"
+    "webpack": "^4.28.4"
   },
   "engines": {
     "node": ">=8.0.0"

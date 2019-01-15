@@ -1363,4 +1363,63 @@ describe('query', () => {
       }),
     ],
   });
+
+  describe('omitNils', () => {
+    runScenario({
+      description: 'GIVEN a nil node',
+      graph: () =>
+        muster({
+          user: nil(),
+        }),
+      operations: [
+        operation({
+          description: 'WHEN the query is resolved against that nil node',
+          input: query(
+            ref('user'),
+            {
+              firstName: true,
+              lastName: true,
+            },
+            { omitNils: true },
+          ),
+          expected: value(undefined),
+        }),
+      ],
+    });
+
+    runScenario({
+      description: 'GIVEN a nil node and a value node',
+      graph: () =>
+        muster({
+          user: {
+            address: nil(),
+            firstName: 'Bob',
+            lastName: 'Smith',
+          },
+        }),
+      operations: [
+        operation({
+          description: 'WHEN the query is resolved against a `user` branch',
+          input: query(
+            ref('user'),
+            {
+              firstName: true,
+              address: {
+                line1: true,
+                line2: true,
+                nested: {
+                  something: true,
+                },
+              },
+            },
+            { omitNils: true },
+          ),
+          expected: value({
+            firstName: 'Bob',
+            address: undefined,
+          }),
+        }),
+      ],
+    });
+  });
 });

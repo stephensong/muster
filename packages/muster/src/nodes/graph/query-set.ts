@@ -122,10 +122,12 @@ export function isQuerySetChild(node: NodeDefinition): node is QuerySetChild {
 
 interface QuerySetOptions {
   bubbleErrorsToTop: boolean;
+  omitNils: boolean;
 }
 
 const DEFAULT_QUERY_SET_OPTIONS: QuerySetOptions = {
   bubbleErrorsToTop: false,
+  omitNils: false,
 };
 
 export interface QuerySetNodeProperties {
@@ -142,6 +144,7 @@ export const QuerySetNodeType: StatelessNodeType<
     children: types.optional(types.arrayOf(graphTypes.nodeDefinition)),
     options: types.shape({
       bubbleErrorsToTop: types.bool,
+      omitNils: types.bool,
     }),
     root: graphTypes.nodeDefinition,
   },
@@ -492,6 +495,7 @@ function resolveGetChildOperation_children([result, child, options]: [
   QuerySetGetChildOperationNode,
   ValueNode<QuerySetOptions>
 ]): GraphNode {
+  if (options.definition.properties.value.omitNils && NilNodeType.is(result)) return result;
   return withScopeFrom(
     result,
     resolveOperations(result, child.definition.properties.children!, options),

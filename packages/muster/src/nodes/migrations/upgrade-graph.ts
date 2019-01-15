@@ -1,5 +1,5 @@
 import { satisfies } from 'semver';
-import migrationsInOrder from './migrations-in-order';
+import { migrationsInOrder } from './migrations-in-order';
 import { GraphWithMetadata } from './types';
 
 // It assumes the target version should be the latest version

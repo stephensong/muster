@@ -1,7 +1,7 @@
 {
   "name": "@dws/muster-server",
   "version": "6.5.0",
-  "description": "Muster server middlewares",
+  "description": "Server middlewares for running Muster standalone",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -12,6 +12,24 @@
   "files": [
     "/dist",
     "/esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwstech/muster.git"
+  },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
+  "keywords": [
+    "muster",
+    "express",
+    "xhr",
+    "websocket",
+    "sockets",
+    "data",
+    "state-management",
+    "graphs"
   ],
   "scripts": {
     "clean": "del-cli ./dist ./esm",

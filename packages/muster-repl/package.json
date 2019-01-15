@@ -16,6 +16,14 @@
   "bin": {
     "muster-repl": "./dist/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwstech/muster.git"
+  },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
   "scripts": {
     "clean": "del-cli ./dist ./esm",
     "prebuild": "yarn clean",
@@ -40,7 +48,7 @@
     "lodash": "^4.17.11",
     "mz": "^2.7.0",
     "untildify": "^3.0.2",
-    "snyk": "^1.117.1"
+    "snyk": "^1.122.0"
   },
   "devDependencies": {
     "@types/jest": "^23.3.2",

@@ -1,3 +1,4 @@
+import { isGetChildOperation } from '../../operations';
 import {
   GraphAction,
   GraphNode,
@@ -15,6 +16,7 @@ import { createNodeType } from '../../utils/create-node-type';
 import * as graphTypes from '../../utils/graph-types';
 import supportsOperationType from '../../utils/supports-operation-type';
 import * as types from '../../utils/types';
+import { NilNodeType } from './nil';
 
 /**
  * An instance of the [[fuzzyTraverse]] node.
@@ -72,7 +74,12 @@ export const FuzzyTraverseNodeType: StatelessNodeType<
           },
         ];
       },
-      run(node: FuzzyTraverseNode, operation: never, [target]: Array<never>): GraphAction {
+      run(
+        node: FuzzyTraverseNode,
+        operation: never,
+        [target]: Array<never>,
+      ): GraphAction | GraphNode {
+        if (NilNodeType.is(target) && isGetChildOperation(operation)) return target;
         return createGraphAction(target, node.definition.properties.operation);
       },
     },

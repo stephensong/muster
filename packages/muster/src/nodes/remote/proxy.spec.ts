@@ -5018,4 +5018,42 @@ describe('proxy()', () => {
       ],
     };
   });
+
+  describe('GIVEN a remote graph with an array of items', () => {
+    let remoteInstance: Muster;
+    let mockRemoteResolve: jest.Mock<ObservableLike<NodeDefinition>>;
+
+    runScenario({
+      description: 'AND a local instance connected to the remote',
+      before() {
+        remoteInstance = muster({
+          items: arrayList(['first', 'second']),
+        });
+        mockRemoteResolve = jest.fn((req) => remoteInstance.resolve(req, { raw: true }));
+      },
+      graph: () =>
+        muster({
+          remote: proxy([fromStreamMiddleware(mockRemoteResolve)]),
+        }),
+      operations: [
+        operation({
+          description: 'WHEN the remote list of items is loaded',
+          input: query(ref('remote', 'items'), entries()),
+          expected: value(['first', 'second']),
+          operations: (subscriber) => [
+            operation({
+              description: 'AND a new item is added to the remote list',
+              async before() {
+                jest.clearAllMocks();
+                await remoteInstance.resolve(push(ref('items'), 'third'));
+              },
+              assert() {
+                expect(subscriber().next).toHaveBeenCalledWith(value(['first', 'second', 'third']));
+              },
+            }),
+          ],
+        }),
+      ],
+    });
+  });
 });

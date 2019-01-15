@@ -3,6 +3,7 @@ import muster, {
   action,
   applyTransforms,
   array,
+  arrayList,
   attachMetadata,
   call,
   computed,
@@ -22,6 +23,7 @@ import muster, {
   GraphWithMetadata,
   handleErrors,
   HttpRequestConfiguration,
+  invalidate,
   invalidateOn,
   key,
   last,
@@ -34,8 +36,16 @@ import muster, {
   nth,
   ok,
   onGlobalEvent,
+  push,
   query,
+  querySet,
+  querySetCallOperation,
+  querySetGetChildOperation,
+  querySetGetItemsOperation,
+  querySetOperation,
+  // querySetSetOperation,
   ref,
+  resolveOperation,
   root,
   sanitize,
   series,
@@ -59,6 +69,12 @@ const mockGetMusterOperationTypesMap = getMusterOperationTypesMap;
 const mockMap = map;
 const mockObservable = Observable;
 const mockSanitize = sanitize;
+
+const RESOLVE_OPERATION = resolveOperation({
+  acceptNil: true,
+  allowErrors: false,
+  allowPending: false,
+});
 
 jest.mock('./utils/do-http-request', () => {
   const mockResolver = jest
@@ -91,26 +107,20 @@ jest.mock('./utils/do-http-request', () => {
     mockResponse(node: NodeDefinition) {
       mockResolver.mockReturnValue(Promise.resolve(node));
     },
-    assertRemoteRequest(shouldCall: boolean = true) {
-      if (shouldCall) {
-        expect(mockResolver).toHaveBeenCalled();
-      } else {
-        expect(mockResolver).not.toHaveBeenCalled();
-      }
-    },
+    mockRemoteResolve: mockResolver,
   };
 });
 
 const TEST_INVALIDATE_EVENT = '$$event:test-invalidateOn';
 const mockRemoteGraph = (dhr as any).mockRemoteGraph;
-const assertRemoteRequest = (dhr as any).assertRemoteRequest;
+const mockRemoteResolve = (dhr as any).mockRemoteResolve;
 const mockResponse = (dhr as any).mockResponse;
+
+const MOCK_REMOTE_URL = 'https://example.com/muster';
 
 function nextTick() {
   return Promise.resolve().then(() => Promise.resolve());
 }
-
-const MOCK_REMOTE_URL = 'https://example.com/muster';
 
 describe('remote', () => {
   describe('ParsedProps set building phase', () => {
@@ -137,7 +147,7 @@ describe('remote', () => {
           input: ref('remote', 'foo'),
           expected: value('remote:foo'),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -169,7 +179,7 @@ describe('remote', () => {
           input: ref('remote', 'deeply', 'nested', 'value'),
           expected: value('remote:foo'),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -201,7 +211,7 @@ describe('remote', () => {
           input: ref('currentUser'),
           expected: value('remote:foo'),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -235,7 +245,7 @@ describe('remote', () => {
           input: ref('firstName'),
           expected: value('remote:foo'),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -264,7 +274,7 @@ describe('remote', () => {
           input: ref('remote', 'foo'),
           expected: value(undefined),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
         operation({
@@ -275,7 +285,7 @@ describe('remote', () => {
           input: ref('remote', 'bar'),
           expected: value({ baz: true }),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -313,11 +323,7 @@ describe('remote', () => {
           input: ref('remote', 'foo'),
           expected: value('remote:foo'),
           assert: () => {
-            assertRemoteRequest(MOCK_REMOTE_URL, {
-              Accept: 'application/json, text/plain, */*',
-              'Content-Type': 'application/json',
-              'X-AUTH-TOKEN': 'my test auth token',
-            });
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
           operations: (subscriber) => [
             operation({
@@ -328,7 +334,7 @@ describe('remote', () => {
               input: set(['headers', 'authToken'], 'updated token'),
               assert() {
                 expect(subscriber().next).not.toHaveBeenCalled();
-                assertRemoteRequest(false);
+                expect(mockRemoteResolve).not.toHaveBeenCalled();
               },
               operations: [
                 operation({
@@ -336,11 +342,7 @@ describe('remote', () => {
                   input: ref('remote', 'bar'),
                   expected: value('remote:bar'),
                   assert() {
-                    assertRemoteRequest(MOCK_REMOTE_URL, {
-                      Accept: 'application/json, text/plain, */*',
-                      'Content-Type': 'application/json',
-                      'X-AUTH-TOKEN': 'updated token',
-                    });
+                    expect(mockRemoteResolve).toHaveBeenCalled();
                   },
                 }),
               ],
@@ -375,7 +377,7 @@ describe('remote', () => {
           input: ref('remote', 'foo'),
           expected: value('remote:foo'),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -443,15 +445,39 @@ describe('remote', () => {
               async assert() {
                 await nextTick();
                 expect(subscriber().next).toHaveBeenCalledTimes(1);
+                expect(mockRemoteResolve).toHaveBeenCalledTimes(2);
+                expect(mockRemoteResolve).toHaveBeenNthCalledWith(
+                  1,
+                  querySet(root(), [
+                    querySetGetChildOperation('appendName', [
+                      querySetCallOperation([value(' world')]),
+                    ]),
+                  ]),
+                );
+                expect(mockRemoteResolve).toHaveBeenNthCalledWith(
+                  2,
+                  querySet(root(), [
+                    querySetGetChildOperation('name', [querySetOperation(RESOLVE_OPERATION)]),
+                  ]),
+                );
               },
               operations: [
                 operation({
                   description: 'AND the name gets re-requested',
                   before() {
+                    jest.clearAllMocks();
                     subscriber().subscription.unsubscribe();
                   },
                   input: ref('name'),
                   expected: value('Hello world'),
+                  assert() {
+                    expect(mockRemoteResolve).toHaveBeenCalledTimes(1);
+                    expect(mockRemoteResolve).toHaveBeenCalledWith(
+                      querySet(root(), [
+                        querySetGetChildOperation('name', [querySetOperation(RESOLVE_OPERATION)]),
+                      ]),
+                    );
+                  },
                 }),
               ],
             }),
@@ -502,7 +528,6 @@ describe('remote', () => {
               ]),
               expected: ok(),
               async assert() {
-                await nextTick();
                 expect(subscriber().next).toHaveBeenCalledTimes(1);
               },
               operations: [
@@ -565,7 +590,6 @@ describe('remote', () => {
               ]),
               expected: ok(),
               async assert() {
-                await nextTick();
                 expect(itemsSubscriber().next).toHaveBeenCalledTimes(1);
               },
               operations: [
@@ -628,7 +652,6 @@ describe('remote', () => {
               ]),
               expected: ok(),
               async assert() {
-                await nextTick();
                 expect(itemsSubscriber().next).toHaveBeenCalledTimes(1);
               },
               operations: [
@@ -711,7 +734,6 @@ describe('remote', () => {
               ]),
               expected: ok(),
               async assert() {
-                await nextTick();
                 expect(subscriber().next).toHaveBeenCalledTimes(1);
                 expect(subscriber().next).toHaveBeenCalledWith(
                   value({
@@ -798,7 +820,6 @@ describe('remote', () => {
               ]),
               expected: ok(),
               async assert() {
-                await nextTick();
                 expect(subscriber().next).toHaveBeenCalledTimes(1);
                 expect(subscriber().next).toHaveBeenCalledWith(
                   value({
@@ -839,7 +860,6 @@ describe('remote', () => {
               ]),
               expected: ok(),
               async assert() {
-                await nextTick();
                 expect(subscriber().next).toHaveBeenCalledTimes(1);
                 expect(subscriber().next).toHaveBeenCalledWith(value('bar'));
               },
@@ -901,7 +921,7 @@ describe('remote', () => {
             },
           }),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -949,7 +969,7 @@ describe('remote', () => {
             },
           }),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -1008,7 +1028,7 @@ describe('remote', () => {
             },
           }),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -1035,7 +1055,7 @@ describe('remote', () => {
             path: ['remote', '$$NETWORK_ERROR$$'],
           }),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
         operation({
@@ -1053,7 +1073,7 @@ describe('remote', () => {
             { path: ['remote', '$$SERVER_ERROR$$'] },
           ),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
         operation({
@@ -1071,7 +1091,7 @@ describe('remote', () => {
             { path: ['remote', '$$INVALID_RESPONSE_FORMAT$$'] },
           ),
           assert: () => {
-            assertRemoteRequest();
+            expect(mockRemoteResolve).toHaveBeenCalled();
           },
         }),
       ],
@@ -1110,7 +1130,7 @@ describe('remote', () => {
               path: ['remote', '$$SERVER_ERROR$$'],
             }),
             assert: () => {
-              assertRemoteRequest();
+              expect(mockRemoteResolve).toHaveBeenCalled();
             },
           }),
           operation({
@@ -1122,7 +1142,7 @@ describe('remote', () => {
             input: ref('remote', 'error'),
             expected: withErrorPath(error('ERROR: error:foo'), { path: ['remote', 'error'] }),
             assert: () => {
-              assertRemoteRequest();
+              expect(mockRemoteResolve).toHaveBeenCalled();
             },
           }),
         ],
@@ -1164,7 +1184,7 @@ describe('remote', () => {
               path: ['remote', '$$SERVER_ERROR$$'],
             }),
             assert: () => {
-              assertRemoteRequest();
+              expect(mockRemoteResolve).toHaveBeenCalled();
             },
           }),
           operation({
@@ -1175,7 +1195,7 @@ describe('remote', () => {
             input: ref('remote', 'error'),
             expected: withErrorPath(error('ERROR: error:foo'), { path: ['remote', 'error'] }),
             assert: () => {
-              assertRemoteRequest();
+              expect(mockRemoteResolve).toHaveBeenCalled();
             },
           }),
         ],
@@ -1266,7 +1286,7 @@ describe('remote', () => {
         input: ref('remote', 'test', 'path'),
         expected: withErrorPath(error('Test error'), { path: ['remote', 'test', 'path'] }),
         assert() {
-          assertRemoteRequest(false);
+          expect(mockRemoteResolve).not.toHaveBeenCalled();
         },
       }),
     ],
@@ -1295,7 +1315,7 @@ describe('remote', () => {
         input: ref('remote', 'test', 'path'),
         expected: withErrorPath(error('Boom!'), { path: ['remote', 'test', 'path'] }),
         assert() {
-          assertRemoteRequest(false);
+          expect(mockRemoteResolve).not.toHaveBeenCalled();
         },
       }),
     ],
@@ -1380,5 +1400,151 @@ describe('remote', () => {
         }),
       }),
     ],
+  });
+
+  runScenario(() => {
+    let remoteInstance: Muster;
+    return {
+      description: 'GIVEN a remote graph with an array of items',
+      before() {
+        remoteInstance = muster({
+          items: arrayList(['first', 'second']),
+        });
+        mockRemoteGraph(remoteInstance);
+      },
+      graph: () =>
+        muster({
+          remote: remote('http://test.url'),
+        }),
+      operations: [
+        operation({
+          description: 'WHEN the remote list of items is loaded',
+          input: query(ref('remote', 'items'), entries()),
+          expected: value(['first', 'second']),
+          operations: (subscriber) => [
+            operation({
+              description: 'AND a new item is added to the remote list',
+              async before() {
+                jest.clearAllMocks();
+                await remoteInstance.resolve(push(ref('items'), 'third'));
+              },
+              assert() {
+                expect(subscriber().next).not.toHaveBeenCalled();
+              },
+              operations: [
+                operation({
+                  description: 'AND the remote gets invalidated',
+                  input: invalidate(),
+                  assert() {
+                    expect(subscriber().next).toHaveBeenCalledTimes(1);
+                    expect(subscriber().next).toHaveBeenCalledWith(
+                      value(['first', 'second', 'third']),
+                    );
+                  },
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    };
+  });
+
+  runScenario(() => {
+    let remoteInstance: Muster;
+    return {
+      description: 'GIVEN a remote graph with an array of trees',
+      before() {
+        remoteInstance = muster({
+          items: arrayList([
+            { name: 'first', description: 'first description' },
+            { name: 'second', description: 'second description' },
+          ]),
+        });
+        mockRemoteGraph(remoteInstance);
+      },
+      graph: () =>
+        muster({
+          remote: remote('http://test.url'),
+        }),
+      operations: [
+        operation({
+          description: 'WHEN the remote list of items is loaded',
+          before() {
+            jest.clearAllMocks();
+          },
+          input: query(
+            ref('remote', 'items'),
+            entries({
+              name: true,
+            }),
+          ),
+          expected: value([{ name: 'first' }, { name: 'second' }]),
+          assert() {
+            expect(mockRemoteResolve).toHaveBeenCalledTimes(1);
+            expect(mockRemoteResolve).toHaveBeenCalledWith(
+              querySet(root(), [
+                querySetGetChildOperation('items', [
+                  querySetGetItemsOperation({
+                    children: [
+                      querySetGetChildOperation('name', [querySetOperation(RESOLVE_OPERATION)]),
+                    ],
+                  }),
+                ]),
+              ]),
+            );
+          },
+          operations: (subscriber) => [
+            operation({
+              description: 'AND a new item is added to the remote list',
+              async before() {
+                jest.clearAllMocks();
+                await remoteInstance.resolve(
+                  push(
+                    ref('items'),
+                    toNode({
+                      name: 'third',
+                      description: 'third description',
+                    }),
+                  ),
+                );
+              },
+              assert() {
+                expect(subscriber().next).not.toHaveBeenCalled();
+              },
+              operations: [
+                operation({
+                  description: 'AND the remote gets invalidated',
+                  before() {
+                    jest.clearAllMocks();
+                  },
+                  input: invalidate(),
+                  assert() {
+                    expect(subscriber().next).toHaveBeenCalledTimes(1);
+                    expect(subscriber().next).toHaveBeenCalledWith(
+                      value([{ name: 'first' }, { name: 'second' }, { name: 'third' }]),
+                    );
+                    expect(mockRemoteResolve).toHaveBeenCalledTimes(1);
+                    expect(mockRemoteResolve).toHaveBeenCalledWith(
+                      querySet(root(), [
+                        querySetGetChildOperation('items', [
+                          querySetGetItemsOperation({
+                            children: [
+                              querySetGetChildOperation('name', [
+                                querySetOperation(RESOLVE_OPERATION),
+                              ]),
+                            ],
+                          }),
+                        ]),
+                      ]),
+                    );
+                  },
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    };
   });
 });

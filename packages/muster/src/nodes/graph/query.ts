@@ -89,8 +89,17 @@ export interface QueryNode extends StatefulGraphNode<'query', QueryNodePropertie
  */
 export interface QueryNodeDefinition extends StatefulNodeDefinition<'query', QueryNodeProperties> {}
 
+export interface QueryNodeOptions {
+  omitNils: boolean;
+}
+
+const DEFAULT_QUERY_OPTIONS: QueryNodeOptions = {
+  omitNils: false,
+};
+
 export interface QueryNodeProperties {
   keys: NodeDefinition;
+  options: QueryNodeOptions;
   root: NodeDefinition;
 }
 
@@ -114,6 +123,9 @@ export const QueryNodeType: StatefulNodeType<'query', QueryNodeProperties> = cre
 >('query', {
   shape: {
     keys: graphTypes.nodeDefinition,
+    options: types.shape({
+      omitNils: types.bool,
+    }),
     root: graphTypes.nodeDefinition,
   },
   state: {
@@ -141,8 +153,7 @@ export const QueryNodeType: StatefulNodeType<'query', QueryNodeProperties> = cre
       ): void {
         let previousResponse: NodeDefinition | undefined;
         try {
-          const { keys, root } = node.definition.properties;
-          const { querySet, responseAssembler } = buildQuerySetForQuery(root, keys);
+          const { querySet, responseAssembler } = buildQuerySetForQuery(node.definition.properties);
           this.setData({
             disposeQuerySetSubscription: node.scope.store.subscribe(
               withScopeFrom(node, querySet),
@@ -530,11 +541,13 @@ function safelyGetValueFromResponse(
 export function query(
   root: NodeLike,
   keys: NodeDefinition | FieldSetDefinition,
+  options?: Partial<QueryNodeOptions>,
 ): QueryNodeDefinition {
   return createNodeDefinition(QueryNodeType, {
     keys: isNodeDefinition(keys) ? keys : fields(keys),
+    options: options ? { ...DEFAULT_QUERY_OPTIONS, ...options } : DEFAULT_QUERY_OPTIONS,
     root: toNode(root),
-  });
+  } as QueryNodeProperties);
 }
 
 export function isQueryNodeDefinition(value: NodeDefinition): value is QueryNodeDefinition {
@@ -548,14 +561,16 @@ interface QuerySetWithResponseAssembler {
   responseAssembler: ResponseAssembler;
 }
 
-function buildQuerySetForQuery(
-  root: NodeDefinition,
-  keys: NodeDefinition,
-): QuerySetWithResponseAssembler {
-  const childrenWithResponseAssembler = buildQuerySetChildrenForQueryChild(keys);
+function buildQuerySetForQuery({
+  keys,
+  options,
+  root,
+}: QueryNodeProperties): QuerySetWithResponseAssembler {
+  const childrenWithResponseAssembler = buildQuerySetChildrenForQueryChild(keys, options);
   return {
     querySet: querySet(root, childrenWithResponseAssembler.querySetChildren, {
       bubbleErrorsToTop: true,
+      omitNils: options.omitNils,
     }),
     responseAssembler: (response) =>
       toValue(childrenWithResponseAssembler.responseAssembler(response)),
@@ -571,12 +586,13 @@ interface QuerySetChildrenWithResponseAssembler {
 
 function buildQuerySetChildrenForQueryChild(
   node: NodeDefinition,
+  options: QueryNodeOptions,
 ): QuerySetChildrenWithResponseAssembler {
   if (isFieldsNodeDefinition(node)) {
-    return buildQuerySetChildrenForFieldsNode(node);
+    return buildQuerySetChildrenForFieldsNode(node, options);
   }
   if (isEntriesNodeDefinition(node) || isWithTransformsNodeDefinition(node)) {
-    return buildQuerySetChildrenForEntriesNode(node);
+    return buildQuerySetChildrenForEntriesNode(node, options);
   }
   throw getInvalidTypeError('Invalid query child', {
     expected: [FieldsNodeType, EntriesNodeType, WithTransformsNodeType],
@@ -586,16 +602,19 @@ function buildQuerySetChildrenForQueryChild(
 
 function buildQuerySetChildrenForFieldsNode(
   node: FieldsNodeDefinition,
+  options: QueryNodeOptions,
 ): QuerySetChildrenWithResponseAssembler {
   const { fields } = node.properties;
   const keys = Object.keys(fields);
-  const children = keys.map((key) => buildQuerySetChildForQueryKey(fields[key]));
+  const children = keys.map((key) => buildQuerySetChildForQueryKey(fields[key], options));
   return {
     querySetChildren: children.map((child) => child.querySetChild),
     responseAssembler(response) {
       // Something must have gone wrong if this is not an array node
       if (!isArrayNodeDefinition(response)) return valueOf(response);
-      const childrenResponses = response.properties.items.map((childResponse, index) =>
+      const { items } = response.properties;
+      if (options.omitNils && items.every(isNilNodeDefinition)) return undefined;
+      const childrenResponses = items.map((childResponse, index) =>
         children[index].responseAssembler(childResponse),
       );
       return fromPairs(zip(keys, childrenResponses));
@@ -605,6 +624,7 @@ function buildQuerySetChildrenForFieldsNode(
 
 function buildQuerySetChildrenForEntriesNode(
   node: EntriesNodeDefinition | WithTransformsNodeDefinition,
+  options: QueryNodeOptions,
 ): QuerySetChildrenWithResponseAssembler {
   const { children, transforms } = getTransformsAndChildrenForEntries(node);
   const operation = getItemsOperation(transforms);
@@ -640,7 +660,7 @@ function buildQuerySetChildrenForEntriesNode(
       },
     };
   }
-  const querySetChildren = buildQuerySetChildrenForQueryChild(children);
+  const querySetChildren = buildQuerySetChildrenForQueryChild(children, options);
   return {
     querySetChildren: [
       querySetGetItemsOperation({
@@ -686,21 +706,24 @@ interface QuerySetChildWithResponseAssembler {
   responseAssembler: ResponsePartAssembler;
 }
 
-function buildQuerySetChildForQueryKey(node: NodeDefinition): QuerySetChildWithResponseAssembler {
+function buildQuerySetChildForQueryKey(
+  node: NodeDefinition,
+  options: QueryNodeOptions,
+): QuerySetChildWithResponseAssembler {
   if (isKeyNodeDefinition(node)) {
-    return buildQuerySetChildForKey(node);
+    return buildQuerySetChildForKey(node, options);
   }
   if (isCreateCallerNodeDefinition(node) || isCreateSetterNodeDefinition(node)) {
     return buildQuerySetChildForCallerOrSetterNode(node);
   }
   if (isCatchErrorNodeDefinition(node)) {
-    return buildQuerySetChildForCatchError(node);
+    return buildQuerySetChildForCatchError(node, options);
   }
   if (isDeferNodeDefinition(node)) {
-    return buildQuerySetChildForDefer(node);
+    return buildQuerySetChildForDefer(node, options);
   }
   if (isIsPendingNodeDefinition(node)) {
-    return buildQuerySetChildForIsPending(node);
+    return buildQuerySetChildForIsPending(node, options);
   }
   throw getInvalidTypeError('Invalid query key', {
     expected: [
@@ -715,7 +738,10 @@ function buildQuerySetChildForQueryKey(node: NodeDefinition): QuerySetChildWithR
   });
 }
 
-function buildQuerySetChildForKey(node: KeyNodeDefinition): QuerySetChildWithResponseAssembler {
+function buildQuerySetChildForKey(
+  node: KeyNodeDefinition,
+  options: QueryNodeOptions,
+): QuerySetChildWithResponseAssembler {
   const { children, key } = node.properties;
   if (!isValueNodeDefinition(key)) {
     throw error(
@@ -753,7 +779,7 @@ function buildQuerySetChildForKey(node: KeyNodeDefinition): QuerySetChildWithRes
       },
     };
   }
-  const querySetChildren = buildQuerySetChildrenForQueryChild(children);
+  const querySetChildren = buildQuerySetChildrenForQueryChild(children, options);
   return {
     querySetChild: querySetGetChildOperation(operation, querySetChildren.querySetChildren),
     responseAssembler: querySetChildren.responseAssembler,
@@ -771,18 +797,22 @@ function buildQuerySetChildForCallerOrSetterNode(
 
 function buildQuerySetChildForCatchError(
   node: CatchErrorNodeDefinition,
+  options: QueryNodeOptions,
 ): QuerySetChildWithResponseAssembler {
   const { fallbackGenerator, target } = node.properties;
-  const targetWithResponseAssembler = buildQuerySetChildForQueryKey(target);
+  const targetWithResponseAssembler = buildQuerySetChildForQueryKey(target, options);
   return {
     querySetChild: querySetCatchError(fallbackGenerator, targetWithResponseAssembler.querySetChild),
     responseAssembler: targetWithResponseAssembler.responseAssembler,
   };
 }
 
-function buildQuerySetChildForDefer(node: DeferNodeDefinition): QuerySetChildWithResponseAssembler {
+function buildQuerySetChildForDefer(
+  node: DeferNodeDefinition,
+  options: QueryNodeOptions,
+): QuerySetChildWithResponseAssembler {
   const { fallbackGenerator, target } = node.properties;
-  const targetWithResponseAssembler = buildQuerySetChildForQueryKey(target);
+  const targetWithResponseAssembler = buildQuerySetChildForQueryKey(target, options);
   return {
     querySetChild: querySetDefer(fallbackGenerator, targetWithResponseAssembler.querySetChild),
     responseAssembler: targetWithResponseAssembler.responseAssembler,
@@ -791,8 +821,12 @@ function buildQuerySetChildForDefer(node: DeferNodeDefinition): QuerySetChildWit
 
 function buildQuerySetChildForIsPending(
   node: IsPendingNodeDefinition,
+  options: QueryNodeOptions,
 ): QuerySetChildWithResponseAssembler {
-  const targetWithResponseAssembler = buildQuerySetChildForQueryKey(node.properties.target);
+  const targetWithResponseAssembler = buildQuerySetChildForQueryKey(
+    node.properties.target,
+    options,
+  );
   return {
     querySetChild: querySetIsPending(targetWithResponseAssembler.querySetChild),
     responseAssembler: valueOf,

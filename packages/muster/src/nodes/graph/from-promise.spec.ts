@@ -1,4 +1,5 @@
 import muster, {
+  clear,
   defer,
   error,
   get,
@@ -1591,5 +1592,97 @@ describe('fromPromise', () => {
         }),
       ],
     };
+  });
+
+  describe('clear', () => {
+    runScenario(() => {
+      let mockClear: jest.Mock<Promise<NodeDefinition>>;
+      return {
+        description: 'GIVEN a fromPromise node that implements a clear operation',
+        before() {
+          mockClear = jest.fn(() => Promise.resolve(ok()));
+        },
+        graph: () =>
+          muster({
+            byId: {
+              [match(types.string, 'id')]: fromPromise({
+                clear: mockClear,
+              }),
+            },
+          }),
+        operations: [
+          operation({
+            description: 'WHEN the clear is resolved',
+            before() {
+              jest.clearAllMocks();
+            },
+            input: clear(ref('byId', '123')),
+            expected: ok(),
+            assert() {
+              expect(mockClear).toHaveBeenCalledTimes(1);
+              expect(mockClear).toHaveBeenCalledWith({ id: '123' });
+            },
+          }),
+        ],
+      };
+    });
+  });
+
+  describe('get->clear', () => {
+    runScenario(() => {
+      let mockClear: jest.Mock<Promise<NodeDefinition>>;
+      let mockGet: jest.Mock<Promise<any>>;
+      let count: number;
+      return {
+        description: 'GIVEN a fromPromise node that implements a get and a clear operation',
+        before() {
+          count = 1;
+          mockClear = jest.fn(() => Promise.resolve(ok()));
+          // tslint:disable-next-line:no-increment-decrement
+          mockGet = jest.fn(({ id }) => Promise.resolve(`Item ${id}:${count++}`));
+        },
+        graph: () =>
+          muster({
+            byId: {
+              [match(types.string, 'id')]: fromPromise({
+                clear: mockClear,
+                get: mockGet,
+              }),
+            },
+          }),
+        operations: [
+          operation({
+            description: 'WHEN the value of the node is requested',
+            before() {
+              jest.clearAllMocks();
+            },
+            input: ref('byId', '123'),
+            expected: value('Item 123:1'),
+            assert() {
+              expect(mockGet).toHaveBeenCalledTimes(1);
+              expect(mockGet).toHaveBeenCalledWith({ id: '123' });
+            },
+            operations: (subscriber) => [
+              operation({
+                description: 'AND the node is cleared',
+                before() {
+                  jest.clearAllMocks();
+                },
+                input: clear(ref('byId', '123')),
+                expected: ok(),
+                assert() {
+                  expect(mockClear).toHaveBeenCalledTimes(1);
+                  expect(mockClear).toHaveBeenCalledWith({ id: '123' });
+                  expect(mockGet).toHaveBeenCalledTimes(1);
+                  expect(mockGet).toHaveBeenCalledWith({ id: '123' });
+                  expect(subscriber().next).toHaveBeenCalledTimes(1);
+                  expect(subscriber().next).toHaveBeenCalledWith(value('Item 123:2'));
+                },
+              }),
+            ],
+          }),
+        ],
+      };
+    });
   });
 });

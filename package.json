@@ -1,6 +1,7 @@
 {
   "name": "@dws/muster-base",
   "author": "DWS Technology",
+  "version": "6.6.0",
   "description": "A universal data layer for components and services",
   "keywords": [
     "data",
@@ -16,6 +17,10 @@
     "type": "git",
     "url": "https://github.com/dwstech/muster.git"
   },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
   "scripts": {
     "preverify": "yarn build",
     "verify": "yarn lint && yarn test && yarn compile-doc-examples",
@@ -24,6 +29,7 @@
     "test": "jest",
     "pretest:ci": "mkdirp reports",
     "test:ci": "jest --coverage --ci --reporters=default --reporters=jest-junit -w=2",
+    "report-coverage": "codecov",
     "lint": "tslint \"packages/*/src/**/*.{ts,tsx}\"",
     "prelint:ci": "mkdirp reports",
     "lint:ci": "tslint \"packages/*/src/**/*.{ts,tsx}\" -o \"reports/lint-results.xml\" -t junit",
@@ -44,15 +50,16 @@
     "serve:website": "http-server packages/website/build -o",
     "prebuild:playground": "yarn build:full",
     "build:playground": "lerna run build --scope @dws/muster-playground",
-    "build:playground:ci": "lerna run build --scope @dws/muster-playground",
-    "build:website:ci": "lerna run build --scope @dws/muster-website",
-    "new-version": "lerna version --force-publish --no-push",
+    "build:playground:ci": "lerna run build --scope @dws/muster-playground --stream",
+    "build:website:ci": "lerna run build --scope @dws/muster-website --stream",
+    "new-version": "lerna version --force-publish --no-push && echo 'Bump root package version now!'",
     "release:local": "yarn build:full && yarn release",
     "release": "./scripts/release",
-    "prepush": "./scripts/verify \"yarn verify\"",
-    "precommit": "lint-staged",
-    "pregenerate-docs": "del-cli ./docs/api ./packages/website/static/api",
-    "generate-docs": "typedoc --out packages/website/static/api --sourcefile-url-prefix \"https://github.com/dwstech/muster/blob/master/packages/\"",
+    "postinstall": "patch-package",
+    "generate-docs": "typedoc --out packages/website/static/api/latest --sourcefile-url-prefix \"https://github.com/dwstech/muster/blob/develop/packages/\"",
+    "pregenerate-docs": "del-cli ./docs/api ./packages/website/static/api/latest",
+    "preversion-docs": "del-cli ./docs/api './packages/website/static/api/'$npm_package_version",
+    "version-docs": "typedoc --out 'packages/website/static/api/'$npm_package_version --sourcefile-url-prefix \"https://github.com/dwstech/muster/blob/master/packages/\"",
     "precompile-doc-examples": "yarn generate-docs",
     "compile-doc-examples": "node ./scripts/docs-compiler/index.js"
   },
@@ -82,22 +89,25 @@
     "babel-plugin-dynamic-import-node": "^2.1.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "bestzip": "^2.1.2",
+    "codecov": "^3.1.0",
     "del-cli": "^1.1.0",
-    "enzyme": "3.6.0",
+    "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "^1.5.0",
     "enzyme-to-json": "^3.3.4",
     "gfm-code-blocks": "^1.0.0",
     "glob": "^7.1.3",
     "http-server": "^0.11.1",
-    "husky": "^0.14.3",
+    "husky": "^1.2.0",
     "jest": "^23.6.0",
-    "jest-junit": "^5.1.0",
-    "lerna": "^3.4.3",
-    "license-checker": "^20.2.0",
-    "lint-staged": "^7.2.1",
+    "jest-junit": "^6.0.1",
+    "lerna": "~3.10.5",
+    "license-checker": "^25.0.1",
+    "lint-staged": "^8.1.0",
     "mkdirp": "^0.5.1",
-    "multimatch": "^2.0.0",
+    "multimatch": "^3.0.0",
     "ncp": "^2.0.0",
+    "patch-package": "6.0.0-11",
+    "postinstall-postinstall": "^2.0.0",
     "prettier": "^1.15.0",
     "remark-cli": "^6.0.0",
     "remark-frontmatter": "^1.3.0",
@@ -108,12 +118,18 @@
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
-    "typedoc": "^0.13.0",
+    "typedoc": "^0.14.1",
     "typedoc-plugin-monorepo": "^0.1.0",
     "typedoc-plugin-sourcefile-url": "^1.0.3",
-    "typescript": "3.1.1"
+    "typescript": "3.2.2"
   },
   "resolutions": {
     "event-stream": "3.3.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "./scripts/verify \"yarn verify\""
+    }
   }
 }

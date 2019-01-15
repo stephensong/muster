@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-devtools-client",
-  "version": "6.5.0",
+  "version": "6.6.0",
   "description": "Muster DevTools client",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
@@ -13,6 +13,14 @@
     "/dist",
     "/esm"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwstech/muster.git"
+  },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
   "scripts": {
     "clean": "del-cli ./dist ./esm",
     "prebuild": "yarn clean",
@@ -25,11 +33,11 @@
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster": "^6.5.0",
-    "@dws/muster-message-transport": "^6.5.0",
-    "@dws/muster-observable": "^6.5.0",
-    "@dws/muster-parser": "^6.5.0",
-    "@dws/muster-version": "^6.5.0",
+    "@dws/muster": "^6.6.0",
+    "@dws/muster-message-transport": "^6.6.0",
+    "@dws/muster-observable": "^6.6.0",
+    "@dws/muster-parser": "^6.6.0",
+    "@dws/muster-version": "^6.6.0",
     "lodash": "^4.17.11"
   },
   "devDependencies": {
@@ -37,7 +45,7 @@
     "@types/lodash-es": "^4.14.74",
     "@types/mz": "0.0.32",
     "@types/node": "^10.10.0",
-    "typescript": "3.1.1"
+    "typescript": "3.2.2"
   },
   "engines": {
     "node": ">=8.0.0"

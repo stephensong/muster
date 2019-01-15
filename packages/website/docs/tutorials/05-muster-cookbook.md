@@ -222,3 +222,58 @@ await app.resolve(
 //   { fullName: 'Kate Doe' },
 // ]
 ```
+
+## Dynamically add/remove graphs to Muster
+
+Adding and removing graphs to Muster is quite an advanced topic, so before we dig into the explanation, it's important to add a refresher of some core concepts.
+
+To begin, there's no restriction on the node used as a target of a `query()` node. In most of the Muster examples we've been using either root() or ref() nodes, but you can also resolve queries on `tree()` and `scope()` nodes.
+
+The second thing is that nodes located in the scope do not have direct access outside that scope. The only way the scoped nodes can access wider graph is by injecting nodes through context. For example, given an application:
+
+```javascript
+import muster, { root, scope } from '@dws/muster'
+
+const app = muster({
+  name: 'Name from root of the graph',
+  scope: scope({
+    name: 'Name from scope',
+    getName: get(root(), 'name'), // ref('name')
+  }),
+});
+```
+
+Resolving `await app.resolve(ref('scope', 'getName'))` returns 'Name from scope'. This happens because the scope node overrides the value of a `root()` node, which essentially prevents the nodes from being able to access anything outside that scope.
+
+
+
+The `scope()` node optionally takes context values, which can be injected into that scope. This allows creating links between scope and its parent scope. There's no restrictions on what that link points to, as it can even point to the original root of the parent scope:
+
+```javascript
+import muster, { context, get, root, scope } from '@dws/muster'
+
+const app = muster({
+  name: 'Name from root of the graph',
+  scope: scope({
+    name: 'Name from scope',
+    getName: get(context('originalRoot'), 'name'),
+  }, {
+    originalRoot: root(),
+  }),
+});
+```
+
+In this case resolving `await app.resolve(ref('scope', 'getName'))` returns 'Name from root of the graph'.
+
+It's important to remember that while the example above uses string keys for context values, they can also be defined as symbols.
+
+The final thing is that the `scope()` node definition exposes a `dispose()` function. Certain Muster nodes can have their own state, and their state lives for as long as the node has open subscriptions (except for the `variable()` node, which actually ignores the number of open subscriptions and stores the value for as its parent scope exists or until the `variable()` is reset).
+
+The `dispose()` function is used to force removal of the state of every child node and scope of a `scope()` node definition to prevent garbage piling up from variables that would otherwise remain.
+
+**The simplified workflow of dynamic adding/removing graphs is:**
+1. Based on the `graph` property from an object passed into the `container()` function create a `scope()` node, while retaining a link to the root of the Muster graph through some context value. [[1]](https://github.com/dwstech/muster/blob/develop/packages/muster-react/src/utils/create-container-factory.ts#L83)
+2. Remember that `scope()` node definition, as it will be used to build both the `query()` node, and when component gets unmounted to dispose the retained nodes. [[2]](https://github.com/dwstech/muster/blob/develop/packages/muster-react/src/utils/create-container-factory.ts#L150)
+3. Build a `query()` that uses a `scope()` node definition from the step 2., and with the fields coming from transformed `props` property (again, from an object passed into the `container()` function). [[3]](https://github.com/dwstech/muster/blob/develop/packages/muster-react/src/utils/create-container-factory.ts#L151)
+4. Subscribe to that `query()` node, and render the component with the results from Muster. [[4]](https://github.com/dwstech/muster/blob/develop/packages/muster-react/src/utils/create-container-factory.ts#L217) [[5]](https://github.com/dwstech/muster/blob/develop/packages/muster-react/src/utils/create-container-factory.ts#L244)
+5. (when unmounting) Close `query()` subscription, and then dispose the `scope()` node definition using the `dispose()` function. [[6]](https://github.com/dwstech/muster/blob/develop/packages/muster-react/src/utils/create-container-factory.ts#L357) [[7]](https://github.com/dwstech/muster/blob/develop/packages/muster-react/src/utils/create-container-factory.ts#L373)

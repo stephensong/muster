@@ -7,6 +7,55 @@ title: Latest Changes
 
 ## Unreleased
 
+## 6.6.0 (2019-01-15)
+
+### 🚀 New Features
+
+- Added a new `clear` operation to `fromPromise` node:
+  ```javascript
+  muster({
+    settings: fromPromise({
+      get: () => Promise.resolve(undefined), // Get the settings
+      set: () => Promise.resolve(ok()), // Set the settings
+      clear: () => Promise.resolve(ok()), // Clear the settings
+    })
+  })
+  ```
+- Added the `omitNils` flag to `query()` and `querySet()` nodes. This flag instructs Muster to stop resolving nested query when it encounters a `nil()` node:
+  ```javascript
+  // GIVEN a muster graph
+  const app = muster({
+    user: nil(),
+  });
+  // Query without omitNils
+  await app.resolve(query(ref('user'), { firstName: true, lastName: true }));
+  // === { firstName: undefined, lastName: undefined }
+  // Query WITH omitNils
+  await app.resolve(query(
+    ref('user'),
+    { firstName: true, lastName: true },
+    { omitNils: true },
+  )); // === undefined
+  ```
+
+### 🐛 Bug Fixes
+
+- Fixed a problem with serialising Graph Metadata for the purpose of using it in Muster DevTools.
+- Fixed a problem with an incorrect Licence link.
+- Fixed a bug in a "Muster on the server" example.
+- Fixed a bug in a `location()` node - using browser history caused a reload every time the location
+  got changed.
+- Fixed a bug with invalidating `getItems` requests over the proxy. 
+  
+### 💅 Polish
+
+- Added a unit test that checks if a createBehavior node can be used to create custom evaluate/getChild behavior.
+
+### 📝 Documentation
+- Added a matchers page to the learn section explaining branch matchers and type matchers.
+- Added some answers to Github issues into the documentation.
+- Added documentation for the `omitNils` flag to the queries page.
+
 ## 6.5.0 (2018-12-06)
 
 ### 🚀 New Features

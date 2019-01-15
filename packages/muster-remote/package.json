@@ -1,7 +1,7 @@
 {
   "name": "@dws/muster-remote",
-  "version": "6.5.0",
-  "description": "Muster Remote",
+  "version": "6.6.0",
+  "description": "Remote connection nodes for communication with Muster servers",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -12,6 +12,24 @@
   "files": [
     "/dist",
     "/esm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwstech/muster.git"
+  },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
+  "keywords": [
+    "muster",
+    "muster-server",
+    "xhr",
+    "sockets",
+    "websockets",
+    "data",
+    "state-management",
+    "graphs"
   ],
   "scripts": {
     "clean": "del-cli ./dist ./esm",
@@ -25,14 +43,14 @@
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster": "^6.5.0",
-    "@dws/muster-message-transport": "^6.5.0",
+    "@dws/muster": "^6.6.0",
+    "@dws/muster-message-transport": "^6.6.0",
     "isomorphic-ws": "^4.0.1",
     "lodash": "^4.17.11"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.14.74",
-    "typescript": "3.1.1"
+    "typescript": "3.2.2"
   },
   "engines": {
     "node": ">=8.0.0"

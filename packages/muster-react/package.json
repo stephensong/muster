@@ -1,7 +1,7 @@
 {
   "name": "@dws/muster-react",
-  "version": "6.5.0",
-  "description": "Muster React",
+  "version": "6.6.0",
+  "description": "Muster React view framework integration",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -14,6 +14,23 @@
     "/dist",
     "/esm",
     "/_bundles"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwstech/muster.git"
+  },
+  "homepage": "https://dwstech.github.io/muster/",
+  "bugs": {
+    "url": "https://github.com/dwstech/muster/issues"
+  },
+  "keywords": [
+    "muster",
+    "react",
+    "reactjs",
+    "react-native",
+    "data",
+    "state-management",
+    "graphs"
   ],
   "scripts": {
     "clean": "del-cli ./dist ./esm ./_bundles",
@@ -30,10 +47,10 @@
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster": "^6.5.0",
-    "@dws/muster-observable": "^6.5.0",
-    "@dws/muster-test-utils": "^6.5.0",
-    "hoist-non-react-statics": "^2.2.0",
+    "@dws/muster": "^6.6.0",
+    "@dws/muster-observable": "^6.6.0",
+    "@dws/muster-test-utils": "^6.6.0",
+    "hoist-non-react-statics": "^3.2.1",
     "lodash": "^4.17.11",
     "react-lifecycles-compat": "^3.0.2"
   },
@@ -57,8 +74,8 @@
     "react-dom": "^16.5.1",
     "react-test-renderer": "^16.5.1",
     "ts-loader": "^5.2.2",
-    "typescript": "3.1.1",
-    "webpack": "^4.19.0"
+    "typescript": "3.2.2",
+    "webpack": "^4.28.4"
   },
   "engines": {
     "node": ">=8.0.0"

@@ -3,8 +3,6 @@ id: faq
 title: Frequently Asked Questions (FAQ)
 ---
 
-> This is a living document that will be updated as more questions arise
-
 ## Muster
 
 ### What is Muster?
@@ -62,7 +60,7 @@ Splitting the `index.js` and `graph-root.js` allow you to import `graph-root` in
 
 ### How can I find details and examples of how each node should be used?
 
-Check out the [API documentation](/muster/api). It's pretty exhaustive.
+Check out the [API documentation](/muster/api/latest). It's pretty exhaustive.
 
 ### Is there somewhere online I can experiment with Muster and see the results?
 
@@ -86,7 +84,7 @@ Yes! See our guide to [Running Muster in a Worker](/muster/docs/tutorials/muster
 
 ### Where can I find some example projects that use Muster?
 
-There's a whole repo of them at [muster-examples](https://github.com/dwstech/muster-examples). Most notable among them are probably [TodoMVC](https://github.com/dwstech/muster-examples/blob/master/todo-mvc-muster) and the [RealWorld app](https://github.com/dwstech/muster-examples/blob/master/muster-react-realworld-example-app).
+There's a whole repo of them at [muster-examples](https://github.com/dwstech/muster-examples). Most notable among them are probably [TodoMVC](https://github.com/dwstech/muster-examples/tree/master/todo-mvc) and the [RealWorld app](https://github.com/dwstech/muster-examples/tree/master/realworld-app).
 
 ---
 

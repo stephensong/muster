@@ -7,6 +7,10 @@ title: Latest Changes
 
 ## Unreleased
 
+### 🐛 Bug Fixes
+
+- Fixed pre-emptive websocket closure when making multiple queries to a remote server [#38](https://github.com/dwstech/muster/issues/38)
+
 ### 📝 Documentation
 
 - Added an explanation of the "Unable to type create hasher" error to the Common Muster Errors page.

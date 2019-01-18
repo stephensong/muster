@@ -237,7 +237,9 @@ export function ignore(value: any): string {
 export function type<T, P>(matcher: Matcher<T, P>): HashFunction<T> {
   const hasher = TYPE_HASHERS.get(matcher.metadata.type);
   if (!hasher) {
-    throw new Error('Unable to type create hasher: unrecognised type');
+    throw new Error(`Unable to type create hasher: unrecognised type ${matcher.metadata.type}
+
+This can be caused by aggressive dead code elimination (tree-shaking). Ensure your Muster node imports are not clashing - see https://dwstech.github.io/muster/docs/resources/common-muster-errors##production-error-unable-to-type-create-hasher-unrecognised-type`);
   }
   return isHasherFactory(hasher) ? hasher(matcher.metadata.options) : hasher;
 }

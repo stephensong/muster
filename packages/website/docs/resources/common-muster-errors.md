@@ -175,3 +175,59 @@ There are two possible reasons for this particular error:
     }));
     ```
 2. A requested path does not exist in the graph.
+
+
+## Production error: "Unable to type create hasher: unrecognised type"
+
+This error will occur when building the production version of a Muster-React project.
+
+The error occurs as a result of Webpack incorrectly removing code it 'thinks' is dead during its tree-shaking process. This is caused by webpack erroneously evaluating Muster imports as not being used the final build. To resolve the error, adjust the file structure of your project to make sure any functions which reference the graph are imported to the file which contains the `Main()` method of the project. Alternatively, define the graph in this file too.
+
+Before:
+```js
+import { Provider, query, entries, ref } from '@dws/muster-react';
+import createGraph from './muster/index';
+
+function saveItemsToLocalStorage(graph) {
+  graph
+    .resolve(
+      query(
+        ref('itemList'),
+        entries({
+          id: true,
+          label: true,
+          completed: true,
+        }),
+      ),
+    )
+    .subscribe((items) => {
+      localStorage.setItem('items', JSON.stringify(items));
+    });
+  return graph;
+}
+
+export default function Main() {
+  const graph = saveItemsToLocalStorage(createGraph());
+  return (
+    <Provider muster={graph}>
+      /* JSX Render Code */
+    </Provider>
+  );
+}
+```
+
+After:
+```js
+import { Provider } from '@dws/muster-react';
+import createGraph from './muster/index';
+import saveItemsToLocalStorage from './utils/save-items-to-local-storage';
+
+export default function Main() {
+  const graph = saveItemsToLocalStorage(createGraph());
+  return (
+    <Provider muster={graph}>
+      /* JSX Render Code */
+    </Provider>
+  );
+}
+```

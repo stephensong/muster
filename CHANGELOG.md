@@ -7,6 +7,10 @@ title: Latest Changes
 
 ## Unreleased
 
+### 📝 Documentation
+
+- Added an explanation of the "Unable to type create hasher" error to the Common Muster Errors page.
+
 ## 6.6.0 (2019-01-15)
 
 ### 🚀 New Features

@@ -296,6 +296,12 @@
       },
       "version-6.6.0-muster-cookbook": {
         "title": "Muster Cookbook"
+      },
+      "version-6.6.1-changelog": {
+        "title": "Latest Changes"
+      },
+      "version-6.6.1-common-muster-errors": {
+        "title": "Common Muster Errors"
       }
     },
     "links": {

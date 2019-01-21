@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-react",
-  "version": "6.6.0",
+  "version": "6.6.1",
   "description": "Muster React view framework integration",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
@@ -47,9 +47,9 @@
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster": "^6.6.0",
-    "@dws/muster-observable": "^6.6.0",
-    "@dws/muster-test-utils": "^6.6.0",
+    "@dws/muster": "^6.6.1",
+    "@dws/muster-observable": "^6.6.1",
+    "@dws/muster-test-utils": "^6.6.1",
     "hoist-non-react-statics": "^3.2.1",
     "lodash": "^4.17.11",
     "react-lifecycles-compat": "^3.0.2"

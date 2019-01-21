@@ -1,11 +1,10 @@
 ---
-id: changelog
+id: version-6.6.1-changelog
 title: Latest Changes
+original_id: changelog
 ---
 
 <!--lint disable -->
-
-## Unreleased
 
 ## 6.6.1 (2019-01-21)
 

@@ -188,7 +188,55 @@ The expected console output would look like this:</p>
 </code></pre></li>
 <li>A requested path does not exist in the graph.</li>
 </ol>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2018-12-4</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/muster/docs/next/resources/essential-nodes"><span class="arrow-prev">← </span><span>Essential Nodes</span></a><a class="docs-next button" href="/muster/docs/next/resources/thinking-in-muster"><span>Thinking in Muster*</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#invalid-query-missing-child-fields">Invalid query: missing child fields</a></li><li><a href="#invalid-query-missing-list-item-fields">Invalid query: missing list item fields</a></li><li><a href="#a-node-returned-from-a-computed-doesn-t-get-resolved-when-the-dependency-of-a-computed-changes">A node returned from a computed doesn't get resolved when the dependency of a computed changes</a></li><li><a href="#target-node-does-not-support-the-getchild-operation">Target node does not support the &quot;getChild&quot; operation</a></li><li><a href="#invalid-child-key-key-name">Invalid child key: &gt;</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/muster/" class="nav-home"><img src="/muster/img/muster.svg" alt="Muster" width="66" height="58"/></a><div><h5>Docs</h5><a href="/muster/docs/overview.html">Overview</a><a href="/muster/docs/learn/introduction.html">Guides</a><a href="/muster/api/">API Reference</a><a href="/muster/playground/">Playground</a><a href="/muster/docs/resources/faq.html">FAQ</a></div><div><h5>Community</h5><a href="/muster/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/muster" target="_blank" rel="noreferrer noopener">Stack Overflow</a></div><div><h5>More</h5><a href="/muster/docs/changelog.html">Changelog</a><a href="https://github.com/dwstech/muster">GitHub</a><a class="github-button" href="https://github.com/dwstech/muster" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://www.github.com/dwstech/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/muster/img/dws-logo-global.svg" alt="DWS Technology Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 DWS Technology</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+<h2><a class="anchor" aria-hidden="true" id="production-error-unable-to-type-create-hasher-unrecognised-type"></a><a href="#production-error-unable-to-type-create-hasher-unrecognised-type" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Production error: &quot;Unable to type create hasher: unrecognised type&quot;</h2>
+<p>This error will occur when building the production version of a Muster-React project.</p>
+<p>The error occurs as a result of Webpack incorrectly removing code it 'thinks' is dead during its tree-shaking process. This is caused by webpack erroneously evaluating Muster imports as not being used the final build. To resolve the error, adjust the file structure of your project to make sure any functions which reference the graph are imported to the file which contains the <code>Main()</code> method of the project. Alternatively, define the graph in this file too.</p>
+<p>Before:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">import</span> { Provider, query, entries, ref } <span class="hljs-keyword">from</span> <span class="hljs-string">'@dws/muster-react'</span>;
+<span class="hljs-keyword">import</span> createGraph <span class="hljs-keyword">from</span> <span class="hljs-string">'./muster/index'</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">saveItemsToLocalStorage</span>(<span class="hljs-params">graph</span>) </span>{
+  graph
+    .resolve(
+      query(
+        ref(<span class="hljs-string">'itemList'</span>),
+        entries({
+          <span class="hljs-attr">id</span>: <span class="hljs-literal">true</span>,
+          <span class="hljs-attr">label</span>: <span class="hljs-literal">true</span>,
+          <span class="hljs-attr">completed</span>: <span class="hljs-literal">true</span>,
+        }),
+      ),
+    )
+    .subscribe(<span class="hljs-function">(<span class="hljs-params">items</span>) =&gt;</span> {
+      localStorage.setItem(<span class="hljs-string">'items'</span>, <span class="hljs-built_in">JSON</span>.stringify(items));
+    });
+  <span class="hljs-keyword">return</span> graph;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Main</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> graph = saveItemsToLocalStorage(createGraph());
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Provider</span> <span class="hljs-attr">muster</span>=<span class="hljs-string">{graph}</span>&gt;</span>
+      /* JSX Render Code */
+    <span class="hljs-tag">&lt;/<span class="hljs-name">Provider</span>&gt;</span></span>
+  );
+}
+</code></pre>
+<p>After:</p>
+<pre><code class="hljs css language-js"><span class="hljs-keyword">import</span> { Provider } <span class="hljs-keyword">from</span> <span class="hljs-string">'@dws/muster-react'</span>;
+<span class="hljs-keyword">import</span> createGraph <span class="hljs-keyword">from</span> <span class="hljs-string">'./muster/index'</span>;
+<span class="hljs-keyword">import</span> saveItemsToLocalStorage <span class="hljs-keyword">from</span> <span class="hljs-string">'./utils/save-items-to-local-storage'</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Main</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> graph = saveItemsToLocalStorage(createGraph());
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Provider</span> <span class="hljs-attr">muster</span>=<span class="hljs-string">{graph}</span>&gt;</span>
+      /* JSX Render Code */
+    <span class="hljs-tag">&lt;/<span class="hljs-name">Provider</span>&gt;</span></span>
+  );
+}
+</code></pre>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2019-1-21</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/muster/docs/next/resources/essential-nodes"><span class="arrow-prev">← </span><span>Essential Nodes</span></a><a class="docs-next button" href="/muster/docs/next/resources/thinking-in-muster"><span>Thinking in Muster*</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#invalid-query-missing-child-fields">Invalid query: missing child fields</a></li><li><a href="#invalid-query-missing-list-item-fields">Invalid query: missing list item fields</a></li><li><a href="#a-node-returned-from-a-computed-doesn-t-get-resolved-when-the-dependency-of-a-computed-changes">A node returned from a computed doesn't get resolved when the dependency of a computed changes</a></li><li><a href="#target-node-does-not-support-the-getchild-operation">Target node does not support the &quot;getChild&quot; operation</a></li><li><a href="#invalid-child-key-key-name">Invalid child key: &gt;</a></li><li><a href="#production-error-unable-to-type-create-hasher-unrecognised-type">Production error: &quot;Unable to type create hasher: unrecognised type&quot;</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/muster/" class="nav-home"><img src="/muster/img/muster.svg" alt="Muster" width="66" height="58"/></a><div><h5>Docs</h5><a href="/muster/docs/overview.html">Overview</a><a href="/muster/docs/learn/introduction.html">Guides</a><a href="/muster/api/">API Reference</a><a href="/muster/playground/">Playground</a><a href="/muster/docs/resources/faq.html">FAQ</a></div><div><h5>Community</h5><a href="/muster/en/users.html">User Showcase</a><a href="http://stackoverflow.com/questions/tagged/muster" target="_blank" rel="noreferrer noopener">Stack Overflow</a></div><div><h5>More</h5><a href="/muster/docs/changelog.html">Changelog</a><a href="https://github.com/dwstech/muster">GitHub</a><a class="github-button" href="https://github.com/dwstech/muster" data-icon="octicon-star" data-count-href="/facebook/docusaurus/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section><a href="https://www.github.com/dwstech/" target="_blank" rel="noreferrer noopener" class="fbOpenSource"><img src="/muster/img/dws-logo-global.svg" alt="DWS Technology Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2019 DWS Technology</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

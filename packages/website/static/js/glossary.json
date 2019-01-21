@@ -142,7 +142,7 @@
     },
     {
       "id": "tree",
-      "term": "tree",
+      "term": "tree, !tree-shaking",
       "description": "Muster graphs are declared as trees as this is easier in Javascript. Trees become graphs when the nodes connect to one another.",
       "action": null,
       "scope": "Muster"

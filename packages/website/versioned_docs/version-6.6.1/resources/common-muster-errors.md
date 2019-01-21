@@ -1,6 +1,7 @@
 ---
-id: common-muster-errors
+id: version-6.6.1-common-muster-errors
 title: Common Muster Errors
+original_id: common-muster-errors
 ---
 
 This document serves as a directory of common errors you might encounter when using Muster, what do they mean, and how to fix them.

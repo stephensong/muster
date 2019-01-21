@@ -36,6 +36,8 @@ export function socketMiddleware(options: SocketMiddlewareOptions): NodeDefiniti
   const socketOptions = pick(options, ['numberOfRetries', 'retryDelay', 'requestTimeout', 'log']);
   const socket = new Socket(options.url, socketOptions);
   const openSubscriptions: Array<Message<any>> = [];
+  socket.open();
+
   return messageTransportMiddleware({
     listen(callback) {
       const onOpen = () => openSubscriptions.forEach((message) => socket.send(message));
@@ -46,11 +48,11 @@ export function socketMiddleware(options: SocketMiddlewareOptions): NodeDefiniti
       socket.addEventListener('close', onClose);
       socket.addEventListener('open', onOpen);
 
-      socket.open();
-
       return () => {
-        socket.removeAllEventListeners();
-        socket.close(1000, 'client closed connection');
+        socket.removeEventListener('message', callback);
+        socket.removeEventListener('error', callback);
+        socket.removeEventListener('close', onClose);
+        socket.removeEventListener('open', onOpen);
       };
     },
     send(message) {

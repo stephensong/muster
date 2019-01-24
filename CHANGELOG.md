@@ -7,6 +7,10 @@ title: Latest Changes
 
 ## Unreleased
 
+### 🐛 Bug Fixes
+
+- Fixed websocket event handler clear-up, which led to the wrong listeners being fired on remote message received [#37](https://github.com/dwstech/muster/issues/37)
+
 ## 6.6.1 (2019-01-21)
 
 ### 🐛 Bug Fixes

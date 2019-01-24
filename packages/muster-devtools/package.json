@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-devtools",
-  "version": "6.6.1",
+  "version": "6.6.2",
   "description": "Muster Devtools",
   "main": "./dist/index.js",
   "scripts": {
@@ -15,12 +15,12 @@
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster": "^6.6.1",
-    "@dws/muster-devtools-client": "^6.6.1",
-    "@dws/muster-message-transport": "^6.6.1",
-    "@dws/muster-observable": "^6.6.1",
-    "@dws/muster-react": "^6.6.1",
-    "@dws/muster-version": "^6.6.1",
+    "@dws/muster": "^6.6.2",
+    "@dws/muster-devtools-client": "^6.6.2",
+    "@dws/muster-message-transport": "^6.6.2",
+    "@dws/muster-observable": "^6.6.2",
+    "@dws/muster-react": "^6.6.2",
+    "@dws/muster-version": "^6.6.2",
     "bootstrap": "^4.1.1",
     "classnames": "^2.2.5",
     "jquery": "^3.3.1",
@@ -35,7 +35,7 @@
     "react-dom": "^15.4.2 || ^16.0.0"
   },
   "devDependencies": {
-    "@types/chrome": "0.0.77",
+    "@types/chrome": "0.0.78",
     "@types/classnames": "^2.2.3",
     "@types/jest": "^23.3.2",
     "@types/lodash-es": "^4.14.74",

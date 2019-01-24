@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-devtools-client",
-  "version": "6.6.1",
+  "version": "6.6.2",
   "description": "Muster DevTools client",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
@@ -33,11 +33,11 @@
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster": "^6.6.1",
-    "@dws/muster-message-transport": "^6.6.1",
-    "@dws/muster-observable": "^6.6.1",
-    "@dws/muster-parser": "^6.6.1",
-    "@dws/muster-version": "^6.6.1",
+    "@dws/muster": "^6.6.2",
+    "@dws/muster-message-transport": "^6.6.2",
+    "@dws/muster-observable": "^6.6.2",
+    "@dws/muster-parser": "^6.6.2",
+    "@dws/muster-version": "^6.6.2",
     "lodash": "^4.17.11"
   },
   "devDependencies": {

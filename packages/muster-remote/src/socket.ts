@@ -166,17 +166,19 @@ export default class ReconnectingWebSocket {
   removeEventListener(method: 'error', cb?: (error: Error) => void): void;
   removeEventListener(method: 'open', cb?: () => void): void;
   removeEventListener(method: string, listener: () => void): void {
-    const handlerIndex = this.handlers[method].indexOf(listener, 1);
-    if (handlerIndex > -1) {
-      this.handlers[method].splice(handlerIndex);
-    }
+    this.handlers[method] = this.handlers[method].filter((item) => listener !== item);
   }
 
   /**
    * Remove all event listeners from a Socket
    */
   removeAllEventListeners() {
-    this.handlers = defaultHandlers;
+    this.handlers = {
+      open: [],
+      message: [],
+      error: [],
+      close: [],
+    };
   }
 
   /**

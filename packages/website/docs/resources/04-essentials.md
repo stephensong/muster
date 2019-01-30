@@ -714,7 +714,6 @@ const numbersTimes2 = await app.resolve(query(ref('numbersTimes2'), entries()));
 ```
 This example shows how to use a map to multiply every item of the collection by 2. The multiplication is done with help of an arithmetic graph node, multiply.
 
-example
 #### Mapping branches
 ```javascript
 import muster, { applyTransforms, get, entries, key, map, query, ref } from '@dws/muster';
@@ -737,6 +736,114 @@ const numbers = await app.resolve(query(ref('numbersAsBranches'), entries({
 // ]
 ```
 This example shows how to use a map transform to change the shape of items. It converts each item from a simple value to a tree with a branch named number containing the item's original value.
+
+## Graph
+
+Muster comes with functionality to manipulate and restrict the shape of a graph without editing it directly. This includes using the `scope()` node to obscure a part of a graph in an isolated environment and `extend()` to append nodes to an existing graph to be used contextually.
+
+### [Scope](/muster/api/latest/modules/muster.html#scope)
+
+Creates a new instance of a scope node, which is used when to isolate part of the muster graph from the rest.
+- The nodes from a scope are accessible from the parent scope.
+- The nodes within the scope cannot access anything from the parent scope.
+
+By default, the scope also isolates the scope from external events and prevents the events dispatched in this scope leaving it. The behaviour of isolating scope from events dispatched in the parent scope can be overwritten with the help of the `redispatch` property.
+
+See [dispatch](/muster/api/modules/muster.html#dispatch) to learn more about event dispatching and how to configure the event re-dispatching.
+
+#### Defining a scope
+
+```js
+import muster, { ref, scope } from '@dws/muster';
+
+const app = muster({
+  nested: scope({
+    value: 'Hello, Bob',
+  }),
+});
+
+const result = await app.resolve(ref('nested', 'value'));
+// result === 'Hello, Bob'
+```
+This example shows how to create a scope with a single branch containing a value leaf. This leaf can be accessed as if the scope was a normal branch.
+
+
+#### References inside a scope
+
+```js
+import muster, { ref, scope } from '@dws/muster';
+
+const app = muster({
+  greeting: 'Hello, world',
+  nested: scope({
+    greeting: 'Hello, Bob',
+    refToGreeting: ref('greeting'),
+  }),
+});
+
+const result = await app.resolve(ref('nested', 'greeting'));
+// result === 'Hello, Bob'
+```
+This example shows how addressing changes within a given scope. Normally, `ref('greeting')` would have returned `value('Hello, world')` but a scope changes the root of the graph. Any `ref()` node within a scope can only reference branches the scope encapsulates.
+
+### [Context](/muster/api/latest/modules/muster.html#context)
+
+`context()` is a node which is used to inject nodes from outside a given scope into that scope.
+
+#### Injecting nodes into a scope
+
+```js
+import muster, { context, ref, scope } from '@dws/muster';
+
+const app = muster({
+  greeting: 'Hello, world',
+  nested: scope({
+    greeting: context('message'),
+  }, {
+    message: ref('greeting'),
+  }),
+});
+
+const result = await app.resolve(ref('nested', 'greeting'));
+// result === 'Hello, world'
+```
+This example shows the syntax for using the context node to refer to the outer `greeting` branch in order to access its value from the `greeting` branch in the scope.
+
+### [Extend](/muster/api/latest/modules/muster.html#extend)
+
+The `extend()` node is used to append nodes to an existing branch of a graph.
+
+#### Extending an existing branch
+
+```js
+import muster, { extend, key, query, ref, tree, value } from '@dws/muster';
+
+const app = muster({
+  user: {
+    firstName: 'Bob',
+    lastName: 'Roberson',
+  },
+  extendedUser: extend(
+    ref('user'),
+    tree({
+      age: value(29),
+    }),
+  ),
+});
+
+const user = await app.resolve(query(ref('extendedUser'), {
+  firstName: key('firstName'),
+  lastName: key('lastName'),
+  age: key('age'),
+}));
+// user = {
+//   firstName: 'Bob',
+//   lastName: 'Roberson',
+//   age: 29,
+// }
+```
+In this example, the initial branch of the tree only contains `firstName` and `lastName` as children of `user`. Using the extend node, the tree has `age` appended to it, which can be referenced by calling the name of the branch which performs the extension.
+
 ## Browser
 
 ### [Location](/muster/api/latest/modules/muster.html#location)

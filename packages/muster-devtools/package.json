@@ -2,6 +2,7 @@
   "name": "@dws/muster-devtools",
   "version": "6.6.2",
   "description": "Muster Devtools",
+  "private": true,
   "main": "./dist/index.js",
   "scripts": {
     "build": "webpack",

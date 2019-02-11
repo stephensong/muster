@@ -19,10 +19,12 @@ h6 {
 
 p > a {
   background-color: rgba(255, 89, 178, 0.09);
+  padding: 0 1px;
+  border-bottom: 1px solid rgba(109, 41, 74, 0.5);
 }
 
 p > a:hover {
-  border-bottom: 1px solid rgba(109, 41, 74, 0.5);
+  border-bottom-width: 2px;
 }
 
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
@@ -102,7 +104,8 @@ p > a:hover {
 }
 
 code {
-  background-color: #ffeed3;
+  background: #ffeed3;
+  background: linear-gradient(to right, #ffeed3 0%, #fdf3e4 100%);
 }
 
 .tippy-content {

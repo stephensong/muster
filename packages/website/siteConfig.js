@@ -35,7 +35,7 @@ const siteConfig = {
     { href: `${baseUrl || '/'}playground/`, label: 'Playground' },
     { doc: 'resources/faq', label: 'FAQ' },
     { page: 'help', label: 'Help' },
-    // { blog: false, label: 'Blog' },
+    { blog: true, label: 'Blog' },
     { href: repoUrl, label: 'GitHub' },
   ],
 

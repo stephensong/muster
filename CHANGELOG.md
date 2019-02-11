@@ -7,6 +7,10 @@ title: Latest Changes
 
 ## Unreleased
 
+### 📝 Documentation
+
+- Added a 'Graph' section to Essential Nodes which includes `scope()`, `context()` and `extend()`.
+
 ## 6.6.2 (2019-01-24)
 
 ### 🐛 Bug Fixes

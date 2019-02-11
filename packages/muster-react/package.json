@@ -50,7 +50,7 @@
     "@dws/muster": "^6.6.2",
     "@dws/muster-observable": "^6.6.2",
     "@dws/muster-test-utils": "^6.6.2",
-    "hoist-non-react-statics": "^3.2.1",
+    "hoist-non-react-statics": "^3.3.0",
     "lodash": "^4.17.11",
     "react-lifecycles-compat": "^3.0.2"
   },
@@ -75,7 +75,7 @@
     "react-test-renderer": "^16.5.1",
     "ts-loader": "^5.2.2",
     "typescript": "3.2.2",
-    "webpack": "^4.28.4"
+    "webpack": "^4.29.0"
   },
   "engines": {
     "node": ">=8.0.0"

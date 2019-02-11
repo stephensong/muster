@@ -23,7 +23,7 @@
     },
     {
       "id": "asynchronous data",
-      "term": "asynchronous, asynchronously",
+      "term": "asynchronous, asynchronously, !synchronous",
       "description": "Data that is requested and received when it is ready to supply, as opposed to synchronous or sequential data. Does not block app I/O or responsiveness.",
       "action": null,
       "scope": "JavaScript"
@@ -100,7 +100,7 @@
     },
     {
       "id": "operations (edges)",
-      "term": "operation, operations, edge, edges",
+      "term": "operation, operations, edge, edges, !operation in JavaScript",
       "description": "Actions performed by a node, usually a way of interacting between nodes in the graph.",
       "action": null,
       "scope": "Muster"

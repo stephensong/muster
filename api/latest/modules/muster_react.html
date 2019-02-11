@@ -4822,24 +4822,24 @@ container({
 									},
 									},
 								});</p>
-								<pre><code>is equivalent to:
-```js
-<span class="hljs-keyword">import</span> { container, propTypes, types } from <span class="hljs-string">'@dws/muster-react'</span>;
+								<pre><code><span class="hljs-attr">is</span> <span class="hljs-string">equivalent to:</span>
+<span class="hljs-attr">```js</span>
+<span class="hljs-attr">import</span> <span class="hljs-string">{ container, propTypes, types } from '@dws/muster-react';</span>
 
-container({
-  graph: {
-    user: {
-      firstName: <span class="hljs-string">'Bob'</span>,
-      lastName: <span class="hljs-string">'Smith'</span>,
-    },
-  },
-  props: {
-    user: propTypes.tree({
-      firstName: propTypes.getter(types.any),
-      lastName: propTypes.getter(types.any),
-    }),
-  },
-});</code></pre><p>As you see the first syntax is much shorter, while still expressing the same set of props.
+<span class="hljs-attr">container({</span>
+  <span class="hljs-attr">graph</span>: <span class="hljs-string">{</span>
+    <span class="hljs-attr">user</span>: <span class="hljs-string">{</span>
+      <span class="hljs-attr">firstName</span>: <span class="hljs-string">'Bob',</span>
+      <span class="hljs-attr">lastName</span>: <span class="hljs-string">'Smith',</span>
+    <span class="hljs-attr">},</span>
+  <span class="hljs-attr">},</span>
+  <span class="hljs-attr">props</span>: <span class="hljs-string">{</span>
+    <span class="hljs-attr">user</span>: <span class="hljs-string">propTypes.tree({</span>
+      <span class="hljs-attr">firstName</span>: <span class="hljs-string">propTypes.getter(types.any),</span>
+      <span class="hljs-attr">lastName</span>: <span class="hljs-string">propTypes.getter(types.any),</span>
+    <span class="hljs-attr">}),</span>
+  <span class="hljs-attr">},</span>
+<span class="hljs-attr">});</span></code></pre><p>As you see the first syntax is much shorter, while still expressing the same set of props.
 								The <a href="muster_react.html#tree">tree</a> prop can also be nested to access some deeply nested properties:</p>
 								<pre><code class="language-js"><span class="hljs-keyword">import</span> { container } <span class="hljs-keyword">from</span> <span class="hljs-string">'@dws/muster-react'</span>;
 

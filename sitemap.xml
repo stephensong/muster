@@ -4,11 +4,7 @@
 <url> <loc>https://dwstech.github.io/muster/index</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://dwstech.github.io/muster/en/index" /> </url>
 <url> <loc>https://dwstech.github.io/muster/users</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://dwstech.github.io/muster/en/users" /> </url>
 <url> <loc>https://dwstech.github.io/muster/versions</loc> <changefreq>weekly</changefreq> <priority>0.5</priority> <xhtml:link rel="alternate" hreflang="en" href="https://dwstech.github.io/muster/en/versions" /> </url>
-<url> <loc>https://dwstech.github.io/muster/blog/2017/10/24/new-version-1.0.0</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
-<url> <loc>https://dwstech.github.io/muster/blog/2017/09/26/adding-rss</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
-<url> <loc>https://dwstech.github.io/muster/blog/2017/09/25/testing-rss</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
-<url> <loc>https://dwstech.github.io/muster/blog/2017/04/10/blog-post-two</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
-<url> <loc>https://dwstech.github.io/muster/blog/2016/03/11/blog-post</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
+<url> <loc>https://dwstech.github.io/muster/blog/2019/02/08/introducing-muster</loc> <changefreq>weekly</changefreq> <priority>0.3</priority> </url>
 <url> <loc>https://dwstech.github.io/muster/docs/next/changelog</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://dwstech.github.io/muster/docs/next/changelog" /> </url>
 <url> <loc>https://dwstech.github.io/muster/docs/next/glossary</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://dwstech.github.io/muster/docs/next/glossary" /> </url>
 <url> <loc>https://dwstech.github.io/muster/docs/next/learn/introduction</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://dwstech.github.io/muster/docs/next/learn/introduction" /> </url>

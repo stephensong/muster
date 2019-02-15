@@ -29,6 +29,7 @@
         "label": "Muster",
         "ids": [
           "tutorials/muster-server",
+          "tutorials/muster-lazy-loading",
           "tutorials/muster-worker",
           "tutorials/muster-cookbook",
           "tutorials/muster-testing"

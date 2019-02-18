@@ -84,6 +84,7 @@ const siteConfig = {
   scripts: [
     'https://cdn.polyfill.io/v2/polyfill.min.js',
     'https://buttons.github.io/buttons.js',
+    'https://unpkg.com/quicklink@1.0.0/dist/quicklink.umd.js',
     {
       src: 'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
       async: true,

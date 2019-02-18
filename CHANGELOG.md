@@ -10,6 +10,7 @@ title: Latest Changes
 ### 📝 Documentation
 
 - Added a 'Graph' section to Essential Nodes which includes `scope()`, `context()` and `extend()`.
+- Added a tutorial on lazy-loading Muster graphs
 
 ## 6.6.2 (2019-01-24)
 

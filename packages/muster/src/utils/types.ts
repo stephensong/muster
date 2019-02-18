@@ -330,10 +330,9 @@ registerMusterType('optional', {
   },
 });
 
-export function recursive<
-  T,
-  V extends ((ref: Matcher<T, V>) => Matcher<T, V>) = ((ref: Matcher<T, V>) => Matcher<T, V>)
->(factory: (ref: Matcher<T, V>) => Matcher<T, V>): Matcher<T, V> {
+export function recursive<T, V extends ((ref: Matcher<T, V>) => Matcher<T, V>)>(
+  factory: (ref: Matcher<T, V>) => Matcher<T, V>,
+): Matcher<T, V> {
   const matcher = createMatcher<T, V>('recursive', (value: any) => match(value), factory as V);
   const match = factory(matcher);
   matcher.metadata.type = recursive;

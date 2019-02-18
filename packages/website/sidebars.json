@@ -29,6 +29,7 @@
         "label": "Muster",
         "ids": [
           "tutorials/muster-server",
+          "tutorials/muster-lazy-loading",
           "tutorials/muster-worker",
           "tutorials/muster-cookbook",
           "tutorials/muster-testing"
@@ -49,7 +50,6 @@
       "resources/faq",
       "resources/essential-nodes",
       "resources/common-muster-errors",
-      "resources/thinking-in-muster",
       "glossary",
       "changelog"
     ]

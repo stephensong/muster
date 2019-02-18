@@ -82,6 +82,9 @@
       "tutorials/from-zero-to-muster-hero": {
         "title": "tutorials/from-zero-to-muster-hero"
       },
+      "tutorials/muster-lazy-loading": {
+        "title": "Lazy loading graphs"
+      },
       "tutorials/muster-react-cookbook": {
         "title": "Muster React Cookbook"
       },

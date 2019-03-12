@@ -308,6 +308,15 @@
       },
       "version-6.6.2-changelog": {
         "title": "Latest Changes"
+      },
+      "version-6.6.3-changelog": {
+        "title": "Latest Changes"
+      },
+      "version-6.6.3-essential-nodes": {
+        "title": "Essential Nodes"
+      },
+      "version-6.6.3-muster-lazy-loading": {
+        "title": "Lazy loading graphs"
       }
     },
     "links": {

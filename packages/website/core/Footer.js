@@ -41,7 +41,7 @@ class Footer extends React.Component {
             <h5>Docs</h5>
             <a href={this.docUrl('overview.html')}>Overview</a>
             <a href={this.docUrl('learn/introduction.html')}>Guides</a>
-            <a href={this.relativeUrl('api/')}>API Reference</a>
+            <a href={this.relativeUrl('api/latest/')}>API Reference</a>
             <a href={this.relativeUrl('playground/')}>Playground</a>
             <a href={this.docUrl('resources/faq.html')}>FAQ</a>
           </div>
@@ -59,7 +59,7 @@ class Footer extends React.Component {
           <div>
             <h5>More</h5>
             <a href={this.docUrl('changelog.html')}>Changelog</a>
-            {/*<a href={`${this.props.config.baseUrl}blog`}>Blog</a>*/}
+            <a href={`${this.props.config.baseUrl}blog`}>Notes</a>
             <a href={this.props.config.repoUrl}>GitHub</a>
             <a
               className="github-button"

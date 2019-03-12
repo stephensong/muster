@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-test-utils",
-  "version": "6.6.2",
+  "version": "6.6.3",
   "description": "Muster Test Utils",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
@@ -34,7 +34,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^23.3.2",
-    "typescript": "3.2.2"
+    "typescript": "3.3.3"
   },
   "engines": {
     "node": ">=8.0.0"

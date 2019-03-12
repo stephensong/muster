@@ -1,6 +1,7 @@
 ---
-id: essential-nodes
+id: version-6.6.3-essential-nodes
 title: Essential Nodes
+original_id: essential-nodes
 ---
 
 ## Core Muster nodes

@@ -1,7 +1,7 @@
 {
   "name": "@dws/muster-base",
   "author": "DWS Technology",
-  "version": "6.6.2",
+  "version": "6.6.3",
   "description": "A universal data layer for components and services",
   "keywords": [
     "data",
@@ -52,7 +52,8 @@
     "build:playground": "lerna run build --scope @dws/muster-playground",
     "build:playground:ci": "lerna run build --scope @dws/muster-playground --stream",
     "build:website:ci": "lerna run build --scope @dws/muster-website --stream",
-    "new-version": "lerna version --force-publish --no-push && echo 'Bump root package version now!'",
+    "new-version": "lerna version --force-publish --no-push",
+    "postnew-version": "node ./scripts/root-version.js",
     "release:local": "yarn build:full && yarn release",
     "release": "./scripts/release",
     "postinstall": "patch-package",
@@ -100,7 +101,7 @@
     "husky": "^1.2.0",
     "jest": "^23.6.0",
     "jest-junit": "^6.0.1",
-    "lerna": "~3.10.5",
+    "lerna": "~3.11.1",
     "license-checker": "^25.0.1",
     "lint-staged": "^8.1.0",
     "mkdirp": "^0.5.1",
@@ -118,10 +119,10 @@
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.11.0",
     "tslint-config-prettier": "^1.14.0",
-    "typedoc": "^0.14.1",
+    "typedoc": "^0.14.2",
     "typedoc-plugin-monorepo": "^0.1.0",
     "typedoc-plugin-sourcefile-url": "^1.0.3",
-    "typescript": "3.2.2"
+    "typescript": "3.3.3"
   },
   "resolutions": {
     "event-stream": "3.3.4"

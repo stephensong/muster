@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-parser",
-  "version": "6.6.2",
+  "version": "6.6.3",
   "description": "Muster Parser",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
@@ -33,11 +33,11 @@
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster": "^6.6.2",
-    "@dws/muster-version": "^6.6.2"
+    "@dws/muster": "^6.6.3",
+    "@dws/muster-version": "^6.6.3"
   },
   "devDependencies": {
-    "typescript": "3.2.2"
+    "typescript": "3.3.3"
   },
   "engines": {
     "node": ">=8.0.0"

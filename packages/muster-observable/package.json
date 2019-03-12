@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-observable",
-  "version": "6.6.2",
+  "version": "6.6.3",
   "description": "Muster Observable",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
@@ -34,7 +34,7 @@
   "license": "MIT",
   "devDependencies": {
     "del-cli": "^1.1.0",
-    "typescript": "3.2.2"
+    "typescript": "3.3.3"
   },
   "engines": {
     "node": ">=8.0.0"

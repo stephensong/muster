@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster",
-  "version": "6.6.2",
+  "version": "6.6.3",
   "description": "A universal data layer for components and services",
   "module": "esm/index.js",
   "main": "dist/index.js",
@@ -47,9 +47,9 @@
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster-observable": "^6.6.2",
-    "@dws/muster-test-utils": "^6.6.2",
-    "@dws/muster-version": "^6.6.2",
+    "@dws/muster-observable": "^6.6.3",
+    "@dws/muster-test-utils": "^6.6.3",
+    "@dws/muster-version": "^6.6.3",
     "es6-template-strings": "^2.0.1",
     "history": "^4.7.2",
     "is-plain-object": "^2.0.4",
@@ -69,8 +69,8 @@
     "@types/string-hash": "^1.1.1",
     "del-cli": "^1.1.0",
     "ts-loader": "^5.2.2",
-    "typescript": "3.2.2",
-    "webpack": "^4.28.4"
+    "typescript": "3.3.3",
+    "webpack": "^4.29.0"
   },
   "engines": {
     "node": ">=8.0.0"

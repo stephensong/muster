@@ -1,5 +1,6 @@
 #!/bin/bash
 set -xe
 
+git status
 lerna publish from-package --registry=$NPM_RELEASE_REGISTRY --yes
 # lerna exec --ignore=@dws/muster-playground --ignore=@dws/muster-website -- npm publish --registry=$NPM_RELEASE_REGISTRY

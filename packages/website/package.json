@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-website",
-  "version": "6.6.2",
+  "version": "6.6.3",
   "description": "Muster Website",
   "main": "./build/muster/index.html",
   "private": true,
@@ -18,19 +18,20 @@
     "new-version": "docusaurus-version $npm_package_version",
     "rename-version": "docusaurus-rename-version",
     "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "prepare": "npm run snyk-protect",
+    "prepublish": "npm run snyk-protect"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/plugin-proposal-object-rest-spread": "^7.3.0",
     "@babel/preset-env": "^7.3.0",
-    "@dws/muster-playground": "^6.6.2",
+    "@dws/muster-playground": "^6.6.3",
     "docusaurus": "~1.7.2",
     "lodash": "^4.17.11"
   },
   "snyk": true,
   "dependencies": {
-    "snyk": "^1.122.3"
+    "snyk": "^1.134.2"
   }
 }

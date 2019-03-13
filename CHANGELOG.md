@@ -7,6 +7,10 @@ title: Latest Changes
 
 ## Unreleased
 
+### 🐛 Bug Fixes
+
+- Fixed `startsWith()` example ordering of pattern and subject
+
 ## 6.6.3 (2019-03-12)
 
 ### 📝 Documentation

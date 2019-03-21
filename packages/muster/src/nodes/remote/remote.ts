@@ -21,7 +21,7 @@ export interface RemoteOptions {
 export function remote(url: string, options?: RemoteOptions): NodeDefinition {
   return proxy(
     [
-      ...((options && options.middleware && options.middleware) || []),
+      ...((options && options.middleware) || []),
       batchRequestsMiddleware(),
       xhrMiddleware({
         headers: options && options.headers,

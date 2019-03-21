@@ -50,6 +50,7 @@
     "@dws/muster-observable": "^6.6.3",
     "@dws/muster-test-utils": "^6.6.3",
     "@dws/muster-version": "^6.6.3",
+    "axios": "^0.18.0",
     "es6-template-strings": "^2.0.1",
     "history": "^4.7.2",
     "is-plain-object": "^2.0.4",

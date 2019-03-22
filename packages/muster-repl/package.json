@@ -1,6 +1,6 @@
 {
   "name": "@dws/muster-repl",
-  "version": "6.6.2",
+  "version": "6.6.3",
   "description": "Muster REPL",
   "module": "./esm/index.js",
   "main": "./dist/index.js",
@@ -34,20 +34,21 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "start": "node dist/index",
     "snyk-protect": "snyk protect",
-    "prepare": "npm run snyk-protect"
+    "prepare": "npm run snyk-protect",
+    "prepublish": "npm run snyk-protect"
   },
   "author": "DWS Technology",
   "license": "MIT",
   "dependencies": {
-    "@dws/muster": "^6.6.2",
-    "@dws/muster-observable": "^6.6.2",
+    "@dws/muster": "^6.6.3",
+    "@dws/muster-observable": "^6.6.3",
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.6",
     "chalk": "^2.3.0",
     "cli-highlight": "^2.0.0",
     "lodash": "^4.17.11",
     "mz": "^2.7.0",
-    "snyk": "^1.122.3",
+    "snyk": "^1.134.2",
     "untildify": "^3.0.2"
   },
   "devDependencies": {

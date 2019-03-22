@@ -1,19 +1,10 @@
 ---
-id: changelog
+id: version-6.6.3-changelog
 title: Latest Changes
+original_id: changelog
 ---
 
 <!--lint disable -->
-
-## Unreleased
-
-### 🚀 New Features
-
-- Added the ability to use the Muster `remote()` node on the server side
-
-### 🐛 Bug Fixes
-
-- Fixed `startsWith()` example ordering of pattern and subject
 
 ## 6.6.3 (2019-03-12)
 

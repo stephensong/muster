@@ -84,10 +84,10 @@ export const StartsWithNodeType: StatelessNodeType<
  *
  * const app = muster({});
  *
- * await app.resolve(startsWith('Hello world', 'He'));
+ * await app.resolve(startsWith('He', 'Hello world'));
  * // === true
  *
- * await app.resolve(startsWith('Hello world', 'abc'));
+ * await app.resolve(startsWith('abc', 'Hello world'));
  * // === false
  * ```
  */

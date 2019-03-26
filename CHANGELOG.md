@@ -7,6 +7,16 @@ title: Latest Changes
 
 ## Unreleased
 
+## 6.7.0 (2019-03-26)
+
+### 🚀 New Features
+
+- Added the ability to use the Muster `remote()` node on the server side
+
+### 🐛 Bug Fixes
+
+- Fixed `startsWith()` example ordering of pattern and subject
+
 ## 6.6.3 (2019-03-12)
 
 ### 📝 Documentation
